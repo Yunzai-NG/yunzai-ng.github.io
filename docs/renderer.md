@@ -80,9 +80,11 @@ await e.renderReply("note", { uid, resin: 160 })
 位于面板 → 配置 → renderer-puppeteer，分为两组：
 
 **浏览器**：`chromiumPath`（留空则自动探测）、`wsEndpoint`（填写后连接远端而不自行启动）、
-`headless`、`args`、`userDataDir`（多实例不可共用同一目录）、`launchTimeout`（低配 Android
+`args`、`userDataDir`（多实例不可共用同一目录）、`launchTimeout`（低配 Android
 设备上冷启动确实可能超过半分钟）、`restartAfter`（渲染指定次数后重启浏览器，默认 200；
 Chromium 长时间运行时内存持续增长，定期重启是代价最低的处置方式，0 表示从不重启）。
+
+无「无头模式」开关：下载的是 `chrome-headless-shell`，该构建只能无头运行。
 
 **渲染**：`pages`（同时渲染的页面数，0 表示按内存与核数自动决定 —— **内核不限制并发，
 该项是唯一的限流点**）、`gotoTimeout`、`waitUntil`（缺省为 `networkidle2`，与旧框架一致）、
@@ -91,16 +93,24 @@ Chromium 长时间运行时内存持续增长，定期重启是代价最低的�
 同名模板相互覆盖，不会堆积）。
 
 修改配置后**仅影响启动的字段会导致浏览器重启**（`chromiumPath`、`wsEndpoint`、
-`headless`、`args`、`userDataDir` 等）；修改超时一类的字段不应导致正在运行的浏览器重启。
+`args`、`userDataDir`）；修改超时一类的字段不应导致正在运行的浏览器重启。
 
 ### Chromium 探测
 
-按「用户明确指定 → 环境变量（`YZNG_CHROMIUM_PATH`、`PUPPETEER_EXECUTABLE_PATH`、
-`CHROME_PATH`、`CHROMIUM_PATH`）→ 系统浏览器（Windows 上查找 Edge 与 Chrome）→
-puppeteer 的下载缓存」的顺序进行，来源越明确者优先，不作猜测式回落。
+浏览器由插件目录下的 `pnpm run install:browser` 下载，装到主目录的 `cache/puppeteer` 下，
+版本固定为 `package.json` 中 `yunzai.browserBuildId` 记录的构建号。
 
-Windows 上已安装 Edge 时无须额外下载 Chromium。Termux 上执行 `pkg install chromium`
-并将路径填入 `chromiumPath`。
+按「用户明确指定 → 环境变量（`YZNG_CHROMIUM_PATH`、`PUPPETEER_EXECUTABLE_PATH`、
+`CHROME_PATH`、`CHROMIUM_PATH`）→ 已下载的固定构建 → 缓存中的其他构建」的顺序进行，
+来源越明确者优先，不作猜测式回落。
+
+**不探测系统上的 Edge 与 Chrome。** 系统浏览器的版本随机器漂移，而 `puppeteer-core` 只与
+一个固定构建配套；用系统浏览器出图时，「某台机器上少一块背景、多一道边框」这类问题无从复现。
+
+例外是 **Linux ARM64 与 Termux**：Chrome for Testing 不发布这两个平台的构建
+（`@puppeteer/browsers` 会把 `linux_arm` 映射到 `linux64`，下到的是 x86 二进制，
+Android 更是连平台都识别不出），故仅在这两处回落系统 chromium ——
+`apt install chromium` / `pkg install chromium` 之后无须配置，插件会自动找到它。
 
 ### 模板编译缓存
 

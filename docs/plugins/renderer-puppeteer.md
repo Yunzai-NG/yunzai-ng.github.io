@@ -9,18 +9,25 @@
 
 ## 怎么装
 
-在插件市场里装。它需要一个 Chromium —— 三条路，按优先级：
+在插件市场里装，装完在插件目录下执行 `pnpm run install:browser` 下一份无头浏览器
+（`chrome-headless-shell`，约 100MB，落在主目录的 `cache/puppeteer` 下）。
 
-1. **系统已装的 Chrome / Edge / Chromium**：自动探测，无须配置。
-2. **配置项 `chromiumPath` 指定的可执行文件**：容器或自定义安装位置用这条。
-3. **连接一个已在运行的实例**：配 `browserWsEndpoint`，多实例共用一个浏览器时用这条。
+**不探测系统上的 Edge 与 Chrome。** 系统浏览器的版本随机器漂移，而 `puppeteer-core` 只与一个
+固定构建配套 —— 用系统浏览器出图时，「某台机器上少一块背景、多一道边框」这类问题无从复现。
+故改由脚本下载固定版本，构建号记在 `package.json` 的 `yunzai.browserBuildId`，升级
+`puppeteer-core` 时同步。
 
-三条都不成立时插件照常加载，只是渲染时给出一句说明原因的错误 —— 而不是让整个插件加载失败。
+需要覆盖时还有两条：配置项 `chromiumPath` 指向自备的可执行文件；或配 `wsEndpoint`
+连一个已在运行的实例（多实例共用一个浏览器）。
 
-::: tip Termux 上装不了 Chromium
-那时可以只用文字回复。渲染器不可用不影响收发消息，内核会在插件调 `ctx.render()` 时给出
-一条可读的错误。
+::: tip Linux ARM64 与 Termux 例外
+Chrome for Testing 不发布这两个平台的构建 —— arm64 上「下载成功」得到的其实是 x86 二进制，
+Android 更是连平台都识别不出。这两处需自行 `apt install chromium` / `pkg install chromium`，
+插件会自动用系统那一份。装不上时可以只用文字回复：渲染器不可用不影响收发消息，内核会在插件调
+`ctx.render()` 时给出一条可读的错误。
 :::
+
+一个都没有时插件照常加载，只是渲染时给出一句说明原因的错误 —— 而不是让整个插件加载失败。
 
 ## 关键实现
 
@@ -51,6 +58,11 @@ puppeteer 调用收敛在 `src/launcher.ts` —— 于是页面池的逻辑在�
 源码更准，运行期拼出来的类名也在其中。`tailwindcss` 是可选依赖，动态 `import()` 加载，缺失时整体
 降级为空操作（旧模板不含工具类，毫无影响）。见 `src/tailwind.ts`。
 
+**编译是插件显式声明才做的。** 在 `defineTemplate()` 的第三参里写 `{ tailwind: true }` 才编译，
+未声明即不编译 —— 于是不用工具类的插件既不必装 `tailwindcss`，也不会看到与它无关的编译告警。
+渲染器无从判断一段 HTML 里的 `class="flex"` 是工具类还是模板自带的规则，猜错的代价还不对称：
+该编译而未编译只是少了样式，不该编译而编译了会引入 preflight，把现存模板的边距与字号一并重置。
+
 ## 源码在哪
 
 [Yunzai-NG/renderer-puppeteer](https://github.com/Yunzai-NG/renderer-puppeteer)
@@ -60,7 +72,7 @@ puppeteer 调用收敛在 `src/launcher.ts` —— 于是页面池的逻辑在�
 | `src/index.ts` | 渲染器注册与配置 schema |
 | `src/browser.ts` | 浏览器生命周期与页面池（不 import puppeteer） |
 | `src/launcher.ts` | 真实的 puppeteer 调用 |
-| `src/chromium.ts` | 探测本机的 Chromium 与启动参数 |
+| `src/chromium.ts` | 定位已下载的无头浏览器与启动参数 |
 | `src/template.ts` | art-template 编译层与临时 HTML |
 | `src/tailwind.ts` | 按已渲染 HTML 里的类名编译一段 `<style>` |
 | `src/screenshot.ts` | 截图参数与出图 |
