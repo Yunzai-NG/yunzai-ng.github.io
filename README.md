@@ -45,18 +45,17 @@ pnpm run preview    # 预览构建产物
 `<站点>/getting-started`。项目页形式的部署会引入一层路径前缀，导致帮助页中的全部
 文档链接失效。
 
-**文档源码同时镜像在框架仓库的 docs 分支上**（`Yunzai-NG/yunzai-ng` 的 `docs` 分支），
-与 `main` 上的内核源码互不相干 —— 文档的修订频率高于内核的发版频率，同一分支上两者
-会互相拖着走。该分支只承担存档与「构建即校验」（`ignoreDeadLinks: false`，死链在
-CI 里暴露），**站点由主站点仓库发出**：`.github/workflows/deploy.yml` 里的发布步骤
-以 `github.repository` 加了闸，在框架仓库上只跑 build，不发布。
-
-因此新增或修订文档后，两处都要推：
+**文档只此一份，不在框架仓库里留副本。** 曾在 `Yunzai-NG/yunzai-ng` 上放过一个 docs
+分支，已删除 —— 同一份内容存两处必然分叉，而分叉时无从判断该以谁为准。故推送只有一条：
 
 ```powershell
-git push origin main                      # 本仓库（若已配 origin）
-git push <框架仓库> HEAD:docs             # 镜像到 yunzai-ng 的 docs 分支
+git push origin main
 ```
+
+推上之后 `.github/workflows/deploy.yml` 自行构建并发布，无须手动操作仓库设置：
+该工作流的 `configure-pages` 带 `enablement: true`，会把 Pages 的来源置为
+「GitHub Actions」。缺了它，仓库设置里 Pages 未开启时会得到一句
+`Get Pages site failed ... Error: Not Found` —— 读起来像权限问题，实际只是开关没开。
 
 **文件名即站点路径。** 站点路径与 `docs/` 下的文件名一一对应（`plugin-api.md`
 对应 `/plugin-api`），面板帮助页据此拼接地址。重命名文档前须同步修改面板的帮助页，
