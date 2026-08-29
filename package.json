@@ -1,0 +1,26 @@
+{
+  "name": "@yunzai-ng/docs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Yunzai NG 文档站：上手、架构、插件开发与迁移说明",
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yunzai-NG/yunzai-ng.github.io.git"
+  },
+  "homepage": "https://yunzai-ng.github.io",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs",
+    "verify": "pnpm run build"
+  },
+  "devDependencies": {
+    "vitepress": "1.6.4"
+  }
+}
