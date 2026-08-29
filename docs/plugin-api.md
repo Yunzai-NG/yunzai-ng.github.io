@@ -93,7 +93,7 @@ export default definePlugin({
 | `ctx.kv` | 已绑定 `plugin:<name>:` 前缀的 KV 命名空间 |
 | `ctx.config` | 配置句柄，未声明 schema 时 `get()` 返回空对象 |
 | `ctx.app` | 应用只读视图（版本、paths、platform、adapters、bots、accounts、plugins、policy、server、`usage()`） |
-| `ctx.http` | 带全局代理、超时与重试缺省值的 HTTP 客户端 |
+| `ctx.http` | 带全局代理、超时与重试缺省值的 HTTP 客户端；**已绑定 `ctx.signal`**，在途请求随插件卸载中止 |
 | `ctx.signal` | 插件卸载时 abort，可直接传给 `fetch` |
 
 注册类方法**全部返回 Disposer**：
@@ -405,9 +405,13 @@ ctx.onDispose(() => ws.close())
 长任务与网络请求应使用 `ctx.signal`：
 
 ```ts
-const res = await ctx.http.get(url, { signal: ctx.signal })
+// ctx.http 已绑定 ctx.signal，无须逐个请求再传一次
+const res = await ctx.http.get(url)
 while (!ctx.signal.aborted) { /* … */ }
 ```
+
+`ctx.http` 自 0.2.0 起派生自 `ctx.signal`，**在途请求会随插件卸载被中止**（此前它们能在卸载后
+继续跑完）。确有必须跑完的收尾请求时，放到 `app/stopping` 回调里做，而不是指望卸载后仍在途。
 
 旧框架热重载后 watcher、cron、handler 全部悬空，原因即在于缺少这样一份登记表。
 

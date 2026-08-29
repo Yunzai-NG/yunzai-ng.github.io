@@ -77,7 +77,7 @@ yunzai-ng/
 
 | 仓库 | 内容 |
 |---|---|
-| [`webui-plugin`](https://github.com/Yunzai-NG/webui-plugin) | 面板（七个页面与 schema 驱动的配置表单） |
+| [`webui-plugin`](https://github.com/Yunzai-NG/webui-plugin) | 面板（八个页面与 schema 驱动的配置表单） |
 | [`adapter-napcat`](https://github.com/Yunzai-NG/adapter-napcat) | NapCat OneBot v11 适配器（四种网络模式） |
 | [`renderer-puppeteer`](https://github.com/Yunzai-NG/renderer-puppeteer) | puppeteer-core 与 art-template 渲染器 |
 | [`mhy-game-plugin`](https://github.com/Yunzai-NG/mhy-game-plugin) | 原神 / 星穹铁道 / 绝区零 |
@@ -103,7 +103,7 @@ yunzai-ng/
 | `scheduler/` | cron 与固定间隔任务 | 重入保护（`overlap: "skip"`），单次执行超时后 abort |
 | `render/` | 渲染器注册表 | 按可用性选择，未探测到 Chromium 时回落而非报错 |
 | `platform/` | 目录布局与系统探测 | 八个目录在启动时确定为绝对路径，不再依赖 `process.cwd()` |
-| `http/` | 带代理与重试的 HTTP 客户端 | 插件使用 `ctx.http`，代理与超时缺省值统一 |
+| `http/` | 带代理与重试的 HTTP 客户端 | 插件使用 `ctx.http`，代理与超时缺省值统一；派生自 `ctx.signal`，在途请求随插件卸载中止 |
 | `util/` | LRU、队列、时长解析、深比较等 | 全部有界；`lru.ts` 即"缓存必须声明上限"的实现处 |
 | `testing/` | Mock 适配器与假上下文 | 插件作者无须启动真实内核即可测试命令 |
 
@@ -195,8 +195,16 @@ Disposer → 事件总线 → SQL → KV → HTTP 连接池 → 配置监听 →
 ```
 
 `<home>` 的优先级：`--home` 参数 > `YZNG_HOME` 环境变量 > **便携模式**（安装目录下存在
-`.portable` 文件）> 系统默认位置（Windows 为 `%LOCALAPPDATA%\YunzaiNG`，Termux 为 `~/.yunzai-ng`）。
-便携模式使 ZIP 解压即可使用、复制整个目录即可迁移主机，该形态为 Windows 用户的常见需求。
+`.portable` 文件）> **当前工作目录**。默认落在当前目录：解压或克隆到一个文件夹、在其中
+`yzng init`，数据就在眼前，拷走整个文件夹即完成迁移 —— 便携模式想达到的效果成了默认行为。
+
+代价是解析主目录必须读 `process.cwd()`，而以 Windows 服务、开机自启或 pm2 启动时工作目录
+并非项目目录，那些场景须显式给出 `YZNG_HOME`。
+
+0.1.1 及更早的默认位置是系统目录（Windows 的 `%LOCALAPPDATA%\YunzaiNG`、Termux 的
+`~/.yunzai-ng`）。**不为其保留静默回落** —— 回落会使「默认在当前目录」在任何装过旧版的机器上
+都不成立。改由 `legacyInstance()` 把旧实例报出来，`init` / `start` / `doctor` 显式提示，
+是否搬家交给使用者决定：两个目录都有内容时无从判断该以谁为准，猜错即覆盖掉正在用的那份。
 
 ## 两个框架的对应关系
 

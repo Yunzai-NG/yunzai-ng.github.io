@@ -58,6 +58,10 @@ http(s) URL（对端自行下载）、`base64://`（仅在前两项都不成立�
 `getGroupMemberList` 刻意不回填缓存 —— 一次「群签到排行」会把上千个冷条目挤进去，把真正高频的
 那几十个热条目全部挤出。
 
+**中止不归因为对端配置错误。** 内核 0.2.0 起 `ctx.http` 派生自插件的卸载信号，重载或停机会中止
+在途请求。HTTP 通道若把这类失败一并包成「请检查 NapCat 的网络配置」，日志里就会出现一句与
+NapCat 无关的误导 —— 它其实一切正常。故 `AbortError` 原样抛出，见 `src/transport-http.ts`。
+
 ## 源码在哪
 
 [Yunzai-NG/adapter-napcat](https://github.com/Yunzai-NG/adapter-napcat)
@@ -71,3 +75,5 @@ http(s) URL（对端自行下载）、`base64://`（仅在前两项都不成立�
 | `src/events.ts` | 上报报文 → 内核的 `IncomingEvent` |
 | `src/media.ts` | 媒体引用与 `file` 字段互转 |
 | `src/pending.ts` | 「发一条报文并等它的响应」表达为 Promise |
+| `src/transport-http.ts` | 两种 HTTP 模式：调用经请求发出，事件由对端 POST 送入 |
+| `src/sign.ts` | 上报请求的 HMAC-SHA1 验签（密钥即 Access Token） |

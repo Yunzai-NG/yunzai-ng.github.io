@@ -43,7 +43,17 @@ node packages\cli\dist\bin.js init
 实例重复执行同样安全，已存在的文件不会被覆盖。
 
 主目录的选取顺序：`--home` > 环境变量 `YZNG_HOME` > 便携模式（安装目录下存在 `.portable`
-文件）> 系统默认（Windows 为 `%LOCALAPPDATA%\YunzaiNG`）。
+文件）> **当前工作目录**。
+
+::: warning 0.1.x 升上来的实例
+0.2.0 起默认主目录由系统位置（Windows 的 `%LOCALAPPDATA%\YunzaiNG` 等）改为**当前目录**，
+且**刻意不做静默回落** —— 回落会使「默认在当前目录」在任何装过旧版的机器上都不成立。
+旧实例仍在原处，`init` / `start` / `doctor` 会把它的位置打印出来；要继续用它，
+将 `YZNG_HOME` 指向该目录。
+
+以 Windows 服务、开机自启或 pm2 启动时，工作目录并非项目目录，**必须显式给出 `YZNG_HOME`**，
+否则数据会落在启动器所在之处。
+:::
 
 ## 启动
 
@@ -69,7 +79,7 @@ node packages\cli\dist\bin.js start --plugins <插件目录>
 令牌经请求头传递（`Authorization: Bearer <令牌>` 或 `x-yunzai-token`），**不读取查询串
 与 Cookie** —— 由此免疫 CSRF，亦不会将令牌留存于浏览器历史与反向代理日志中。
 
-面板含七个页面：概览、账号、日志、插件、插件市场、配置、帮助。配置表单并非手写，
+面板含八个页面：概览、账号、日志、插件、插件市场、面板商店、配置、帮助。配置表单并非手写，
 而是由各插件声明的 schema 生成，因此插件新增配置项后面板自动出现对应控件。
 
 ## 安装插件

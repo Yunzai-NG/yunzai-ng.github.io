@@ -93,6 +93,6 @@ TypeScript 与 Vite；少了 `pnpm run build` 则 `dist/index.js` 不存在，�
 | `src/panelconfig.ts` | 面板插件包的配置：校验、存取、默认值 |
 | `src/panelstore.ts` | 面板商店：索引、装 / 更 / 删 |
 | `src/coreconfig.ts` | 读内核配置里的镜像前缀与只读开关 |
-| `web/src/` | 前端（Vue 3 + Vite），`views/` 是七个页面 |
+| `web/src/` | 前端（Vue 3 + Vite），`views/` 是八个页面 |
 | `web/src/panelapi.ts` | 注入给面板插件的 `api` |
 | `web/src/panelcheck.ts` | 校验面板插件的形状，错时给出一句可示于界面的原因 |
