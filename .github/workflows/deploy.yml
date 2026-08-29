@@ -1,9 +1,18 @@
 # 文档站的构建与发布
 #
-# 本仓库须部署为**组织主站点**（`Yunzai-NG/yunzai-ng.github.io`），而非项目页。
-# 原因见 docs/.vitepress/config.mts 的文件头：面板帮助页里的 `DOCS_SITE`
-# 硬编码为 `https://yunzai-ng.github.io`，链接形如 `<站点>/getting-started`。
-# 项目页会多出一层路径前缀，届时帮助页的八个链接全部 404。
+# 文档源码放在框架仓库的 **docs 分支**（`Yunzai-NG/yunzai-ng` 的 docs 分支），
+# 与 main 上的内核源码互不相干 —— 文档的修订频率高于内核的发版频率，
+# 同一个分支上两者会互相拖着走。
+#
+# **站点须发布为组织主站点**（`https://yunzai-ng.github.io`，即仓库
+# `Yunzai-NG/yunzai-ng.github.io`），而非项目页。原因见 docs/.vitepress/config.mts
+# 的文件头：面板帮助页里的 `DOCS_SITE` 硬编码为 `https://yunzai-ng.github.io`，
+# 链接形如 `<站点>/getting-started`。项目页会多出一层 `/yunzai-ng/` 前缀，
+# 届时帮助页的八个链接全部 404。
+#
+# 故本工作流只在**组织主站点仓库**里生效。在 `yunzai-ng` 仓库的 docs 分支上，
+# 它仅承担「构建即校验」——`ignoreDeadLinks: false`，死链在此暴露；
+# 真正的发布由主站点仓库完成，见 README 的「发布」一节。
 #
 # 覆盖 registry：仓库内 .npmrc 指向 npmmirror（国内网络环境），
 # 而 runner 位于境外，走官方源更快且更稳。
@@ -14,7 +23,7 @@ name: 发布文档站
 
 on:
   push:
-    branches: [main]
+    branches: [main, docs]
   workflow_dispatch:
 
 concurrency:
@@ -52,14 +61,30 @@ jobs:
       - name: 构建（死链会在此暴露）
         run: pnpm run build
 
+      # 这两步同样只在主站点仓库执行
+      #
+      # `configure-pages` 在未启用 Pages 的仓库上直接失败，而框架仓库的 docs 分支只做
+      # 存档与校验、不发站点。若不加这道闸，那边每次推送都会得到一次红叉 ——
+      # 而那红叉与文档本身的对错毫无关系，久了就没人再看它。
       - uses: actions/configure-pages@v5
+        if: github.repository == 'Yunzai-NG/yunzai-ng.github.io'
 
       - uses: actions/upload-pages-artifact@v3
+        if: github.repository == 'Yunzai-NG/yunzai-ng.github.io'
         with:
           path: docs/.vitepress/dist
 
+  # 只有主站点仓库才真正发布
+  #
+  # 本仓库的内容同时镜像在框架仓库（`Yunzai-NG/yunzai-ng`）的 docs 分支上，那次推送
+  # 同样会触发本工作流。但框架仓库的 Pages 是**项目页**（`yunzai-ng.github.io/yunzai-ng/`），
+  # 而产物以 `base: "/"` 构建 —— 在项目页下资源路径全部指向站点根，表现为「页面打开但
+  # 一片空白」。故在那里只跑 build（死链照样在此暴露），不发布。
+  #
+  # 换言之：镜像分支用于存档与校验，站点由 github.io 仓库发出。
   deploy:
     needs: build
+    if: github.repository == 'Yunzai-NG/yunzai-ng.github.io'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
