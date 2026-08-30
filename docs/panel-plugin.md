@@ -133,7 +133,7 @@ export default [cpu, memory, disk]
 plugins/webui/plugins/hardware/
 ├─ index.js             入口，汇总成一个数组
 ├─ package.json
-├─ widgets/             九枚组件
+├─ widgets/             十枚组件
 │  └─ lib/store.js      共享代码
 └─ dist/                node 侧那一半的产物
 ```
@@ -324,6 +324,14 @@ node 那半经 `ctx.config()` 读，见[包的 node 侧那一半](#包的-node-�
 | `minWebui` | 否 | 要求的最低**面板**版本。**不是 `minCore`** —— 见下 |
 | `widgets` / `server` / `deps` | 否 | 三项**预告**，仅供列表展示；装完一律以你的 `package.json` 为准 |
 | `tags` | 否 | 商店页按它给出一排可点的分类 |
+| `setup` | 否 | 装后步骤：`{ scripts: ["build"], dev?: true }`。装完依赖之后按序跑，一个失败即停 |
+
+::: tip 用 TypeScript 写的包要声明 `setup`
+`webuiPanel.server` 多半指向 `dist/index.js`，而 `dist/` 通常被你自己的仓库 `.gitignore` 掉了 ——
+不声明 `setup` 就没有那个文件，表现是「装上了、组件也在，但 node 侧的接口一律 404」。
+声明 `{ "scripts": ["build"] }` 之后商店会替你跑，`dev` 缺省为真故编译器（在 `devDependencies` 里）
+一并装上。script 名逐个过白名单 `/^[a-z\d][a-z\d:._-]*$/i`，任一不合法即丢弃整个 `setup`。
+:::
 
 ::: warning 版本门是 `minWebui`，不是 `minCore`
 面板插件用的是**面板**给的注入口（`api.config`、页签注册点、一个模块导出多枚组件），
@@ -350,11 +358,22 @@ node 那半经 `ctx.config()` 读，见[包的 node 侧那一半](#包的-node-�
 
 商店会照这三种情形分别给出提示，不会一律说「已安装」。
 
-依赖那一步商店可以代跑：声明了 `dependencies` 的包，安装时会在包目录里执行
-`pnpm install --prod`（找不到 pnpm 时退回 `npm install --omit=dev`）。这一步在确认框里写明
-并可取消 —— 它会执行你依赖的 install 脚本，而那与你的 node 侧入口稍后被 import 属于同一道
-信任边界。**不加 `--ignore-scripts`**：原生模块（sqlite、sharp）正是在 install 脚本里编译或
-下载预编译产物的，禁掉脚本会装出一份 `import` 就报错的 `node_modules`。
+**依赖那一步商店会代跑，不必使用者动手**：声明了 `dependencies` 的包，安装时会在包目录里执行
+`pnpm install`（找不到 pnpm 时退回 `npm install`）。确认框里把这一步写明 —— 它会执行你依赖的
+install 脚本，而那与你的 node 侧入口稍后被 import 属于同一道信任边界。**不加
+`--ignore-scripts`**：原生模块（sqlite、sharp）正是在 install 脚本里编译或下载预编译产物的，
+禁掉脚本会装出一份 `import` 就报错的 `node_modules`。
+
+需要编译的包在索引条目里声明 `setup`，商店装完依赖后按序跑那几个 script：
+
+```json
+"setup": { "scripts": ["build"] }
+```
+
+字段与内核那份索引同形，规则也一样（名字过白名单、一个失败即停、`dev` 缺省为真），
+详见[插件市场](/market#依赖与装后步骤)。**声明了 `setup` 的包即便依赖不缺也会跑那几个
+script** —— `dist/` 多半被你的仓库 `.gitignore` 掉了，就地拉取拉来新提交之后
+`node_modules` 还在而产物已旧，此时跳过就还是跑着上一版的代码，且毫无迹象。
 
 ### 取源会走代理与镜像
 
@@ -367,8 +386,14 @@ GitHub 反代复用内核配置的 `market.mirror`，面板不另设一份：让
 `codeload.github.com`。镜像站通常只代理 GitHub，任意地址都套前缀会让自建源失效，且报错
 会指向镜像站的 404 而不是使用者写错的地址。clone 那条路会把前缀拼进 clone 地址。
 
-**商店不会替你跑构建。** 面板插件的入口是包根的手写 `index.js`，不需要构建。用
-TypeScript 写的包须自己把产物提交进仓库 —— 商店只会 clone / 解包、校验、按需装依赖。
+**要构建的包在索引里声明 `setup.scripts`。** 面板插件的浏览器侧入口是包根的手写 `index.js`，
+那一半不需要构建；但 node 侧（`webuiPanel.server`）常指向 `dist/index.js`，而 `dist/` 多半被你
+自己的仓库 `.gitignore` 掉了 —— 那时必须声明 `setup: { "scripts": ["build"] }`，否则商店 clone
+下来的目录里压根没有那个文件，表现是「组件都在，node 侧的接口一律 404」。
+
+装依赖时会连 `devDependencies` 一起装（`setup.dev` 缺省为真）：编译器在那里，`--prod` 装出来的
+目录跑 `build` 会报「找不到 tsc」。不想声明装后步骤的包，把产物提交进仓库也行 —— 那时商店只
+clone / 解包、校验、装依赖。
 
 ### 更新与删除
 
@@ -383,7 +408,7 @@ git 时退回整目录重下 —— 那时依赖要重装一遍。使用者在�
 
 ## 一份完整的示例包
 
-上面各节是逐件说的；`webui-example` 把它们凑在一处，可以直接读代码 —— 它是一个包导出三枚组件加
+上面各节是逐件说的；`webui-example` 把它们凑在一处，可以直接读代码 —— 它是一个包导出四枚组件加
 一个页签，外加一份 node 侧与一份自带样式表，每样能力各示范一次。
 
 **它示范什么、四处容易踩的、以及「上游失败不要冒成 500」那一条处置**，见

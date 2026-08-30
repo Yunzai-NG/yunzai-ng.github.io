@@ -98,7 +98,9 @@ Chromium 长时间运行时内存持续增长，定期重启是代价最低的�
 ### Chromium 探测
 
 浏览器由插件目录下的 `pnpm run install:browser` 下载，装到主目录的 `cache/puppeteer` 下，
-版本固定为 `package.json` 中 `yunzai.browserBuildId` 记录的构建号。
+版本固定为 `package.json` 中 `yunzai.browserBuildId` 记录的构建号。**从插件市场装时这一步
+自动执行** —— 索引里该插件的 `setup.scripts` 声明了它（见[插件市场](/market#依赖与装后步骤)）；
+手工 clone 的则要自己跑一次。
 
 按「用户明确指定 → 环境变量（`YZNG_CHROMIUM_PATH`、`PUPPETEER_EXECUTABLE_PATH`、
 `CHROME_PATH`、`CHROMIUM_PATH`）→ 已下载的固定构建 → 缓存中的其他构建」的顺序进行，
