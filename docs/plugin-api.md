@@ -77,6 +77,23 @@ export default definePlugin({
 其中 `configSchema` 声明为 `unknown`，`ConfigOf<S>` 的类型推导只能在 core 中完成。
 经此包装之后 `ctx.config.get().cookie` 才具备类型，字段名书写错误将成为编译错误。
 
+插件仓库若随包发布 `.d.ts`（`tsconfig` 开了 `declaration`，官方插件都是如此），应给默认导出
+显式标注类型：
+
+```ts
+import type { PluginDefinition } from "@yunzai-ng/types"
+
+const plugin: PluginDefinition<MyConfig> = definePlugin({ /* … */ })
+export default plugin
+```
+
+`definePlugin` 的返回类型声明在 `@yunzai-ng/types` 内，而插件在使用者主目录里就地构建时，
+该包由 `<home>/node_modules/@yunzai-ng/types` 这条链接提供，真实路径落在 pnpm 的 `.pnpm/`
+之下 —— tsc 写不出可移植的名字，报 `TS2742: The inferred type of 'default' cannot be named`。
+标注之后 `.d.ts` 里直接就是这个名字，与宿主的安装布局无关。`MyConfig` 即 `configSchema`
+推出的那个类型（`Infer<typeof 你的 schema>`）；未声明 `configSchema` 时写
+`PluginDefinition<Record<string, never>>`。
+
 `setup` 有 30 秒超时，超时按加载失败处理。**不应在 setup 内执行耗时的网络请求** ——
 需要预热时注册 `ctx.on("app/ready", …)`。返回值可以是一个 Disposer，等价于在其中调用
 `ctx.onDispose`。
