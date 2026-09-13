@@ -34,7 +34,7 @@ Yunzai NG 将该方向纠正，代价是与旧插件干净断裂（详见[迁移
         └──────────────────────────────────────────────┘
 ```
 
-依赖只允许向下。`scripts/check-layering.mjs`（`pnpm check:layering`）将该约束固化为 CI 断言，共四条规则：
+依赖只允许向下。`scripts/check-layering.mjs`（`pnpm check:layering`）将该约束固化为 CI 断言，共五条规则：
 
 | 目录 | 允许依赖的工作区包 | 备注 |
 |---|---|---|
@@ -42,6 +42,7 @@ Yunzai NG 将该方向纠正，代价是与旧插件干净断裂（详见[迁移
 | `packages/core` | `types` | **不允许出现任何 `plugins/*`** —— 本次重写的核心不变量 |
 | `packages/jsx` | `types` | 模板层不该能碰到内核 |
 | `packages/cli` | `types` `core` | |
+| `apps` | `types` `core` `cli` | 安装器、站点一类；且不得反向被 `packages/*` 依赖 |
 
 「插件只许经公开入口引用内核」这一条不在此处：官方插件均已独立成库，本仓库内不再有
 `plugins/` 目录，该约束移交各插件仓库的 eslint `no-restricted-imports` 等价实现
@@ -65,7 +66,7 @@ yunzai-ng/
 ├─ packages/
 │  ├─ types/      @yunzai-ng/types   纯类型：事件、消息段、适配器、存储、插件契约
 │  ├─ core/       @yunzai-ng/core    内核
-│  ├─ cli/        @yunzai-ng/cli     yzng init / start / dev / doctor / plugin new
+│  ├─ cli/        @yunzai-ng/cli     yzng init / start / dev / doctor / update / plugin new
 │  └─ jsx/        @yunzai-ng/jsx     渲染模板的 JSX 运行时
 └─ scripts/
    ├─ check-layering.mjs   分层门禁
@@ -77,7 +78,7 @@ yunzai-ng/
 
 | 仓库 | 内容 |
 |---|---|
-| [`webui-plugin`](https://github.com/Yunzai-NG/webui-plugin) | 面板（八个页面与 schema 驱动的配置表单） |
+| [`webui-plugin`](https://github.com/Yunzai-NG/webui-plugin) | 面板（十个页面与 schema 驱动的配置表单） |
 | [`adapter-napcat`](https://github.com/Yunzai-NG/adapter-napcat) | NapCat OneBot v11 适配器（四种网络模式） |
 | [`renderer-puppeteer`](https://github.com/Yunzai-NG/renderer-puppeteer) | puppeteer-core 与 art-template 渲染器 |
 | [`mhy-game-plugin`](https://github.com/Yunzai-NG/mhy-game-plugin) | 原神 / 星穹铁道 / 绝区零 |

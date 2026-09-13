@@ -33,6 +33,11 @@ export default definePlugin({
 `accountSchema` 为 `SchemaDescriptor`（`s.object({...}).describe()` 的产物），
 面板据此渲染"添加账号"表单 —— 编写适配器无须编写任何前端。
 
+**其中只声明连接该账号所需的东西**（地址、token、模式），不要声明重连次数与间隔：
+自动重连由内核统一做（见[重连策略](config.md#适配器-adapter)），适配器不参与，
+用户填的值落在 `AccountRecord.retry` 而非 `config` 里。各适配器自行声明一遍的后果是
+同一件事有 N 份 schema、N 套校验，且漏写的那个适配器的账号就没有这个能力。
+
 ## AdapterHost
 
 ```

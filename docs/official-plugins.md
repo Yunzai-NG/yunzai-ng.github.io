@@ -7,7 +7,7 @@
 
 | 插件 | 作用 | 装在哪 | 额外要求 |
 |---|---|---|---|
-| [webui](/plugins/webui) | 面板本身：八个页面、配置表单、面板插件宿主与商店 | 插件市场 | 无 |
+| [webui](/plugins/webui) | 面板本身：十个页面、配置表单、面板插件宿主与商店 | 插件市场 | 无 |
 | [adapter-napcat](/plugins/adapter-napcat) | 以 OneBot v11 接入 NapCat，提供 QQ 收发 | 插件市场 | 一个在跑的 NapCat |
 | [renderer-puppeteer](/plugins/renderer-puppeteer) | 把模板渲染成图片 | 插件市场 | 无（浏览器随装后步骤自动下载） |
 | [hardware](/plugins/hardware) | 整机硬件监控，十枚面板组件 | **面板商店** | 装完要重载 webui |

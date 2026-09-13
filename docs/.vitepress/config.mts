@@ -81,6 +81,7 @@ export default defineConfig({
         items: [
           { text: "插件开发", link: "/plugin-api" },
           { text: "面板插件", link: "/panel-plugin" },
+          { text: "扩展页面", link: "/custom-page" },
           { text: "适配器开发", link: "/adapter" },
           { text: "渲染与模板", link: "/renderer" },
           { text: "插件市场", link: "/market" }

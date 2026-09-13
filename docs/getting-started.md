@@ -9,7 +9,7 @@
 | | 最低版本 | 说明 |
 |---|---|---|
 | Node.js | 20.11 | 使用了 `import.meta.dirname` 等特性 |
-| pnpm | 9 | 仅从源码构建时需要；使用安装包时无须此项 |
+| pnpm | 9 | 建议但非必需，npm 亦可 |
 
 Windows 与 Android（Termux）均在支持范围内。Termux 上应将存储驱动设为 `json`，
 详见[配置与面板](config.md#低内存设备)。
@@ -17,7 +17,48 @@ Windows 与 Android（Termux）均在支持范围内。Termux 上应将存储驱
 各插件可能引入额外的环境要求（例如渲染器插件需要 Chromium），由插件自行说明；
 其缺失不影响内核启动。
 
+## 从 npm 安装
+
+建新目录后装 CLI 一个包即可：
+
+```powershell
+mkdir 我的机器人
+cd 我的机器人
+pnpm init
+pnpm add @yunzai-ng/cli
+```
+
+**只装 `@yunzai-ng/cli`。** 内核、JSX 运行时与类型包是它的依赖，会一并装上，且发布时
+锁的是**精确版本** —— 由此四个包必然出自同一次发布。若把它们再单列进 `dependencies`：
+
+```json
+{
+  "dependencies": {
+    "@yunzai-ng/cli": "^0.4.2",
+    "@yunzai-ng/core": "0.5.2"
+  }
+}
+```
+
+那条精确的 `core` 会把内核锁死在 0.5.2，此后 `pnpm update` 只动得了 `cli`，而新版
+`cli` 依赖的又是新版 `core`，包管理器只能装两份：编辑器与 `tsc` 自根目录解析到旧的，
+插件经主目录的链接拿到新的 —— 代码里报错、运行时正常，这一幕极难归因。
+`yzng update` 会替你把这几条剪掉。
+
+装好后 `yzng` 位于 `node_modules/.bin/`，可直接执行：
+
+```powershell
+pnpm exec yzng --help    # 或 npx yzng --help
+```
+
+::: tip 全局安装
+`pnpm add -g @yunzai-ng/cli` 亦可，此后 `yzng` 直接可用。代价是主目录与安装目录彻底分离，
+`yzng update` 找不到安装目录（它会提示改用 `pnpm add -g`）。多实例部署时更推荐上面的目录内安装。
+:::
+
 ## 从源码构建
+
+改框架自身或想跑在未发布的提交上时用这条路：
 
 ```powershell
 pnpm install
@@ -33,17 +74,32 @@ pnpm run build          # 构建内核、CLI、JSX 运行时与类型包
 pnpm run verify         # build → check:layering → check:firstrun → typecheck:test → lint → test
 ```
 
+此后各命令写作 `node packages\cli\dist\bin.js <命令>`，与下文的 `yzng <命令>` 等价。
+
 ## 初始化目录
 
 ```powershell
-node packages\cli\dist\bin.js init
+yzng init
 ```
 
 该命令输出主目录、配置、数据、日志、插件、临时六个位置。**该操作幂等**，对已长期运行的
 实例重复执行同样安全，已存在的文件不会被覆盖。
 
 主目录的选取顺序：`--home` > 环境变量 `YZNG_HOME` > 便携模式（安装目录下存在 `.portable`
-文件）> **当前工作目录**。
+文件）> **自当前目录向上找到的实例** > 当前工作目录。
+
+「向上找实例」是为了让在子目录里执行也落在同一个实例上：`cd plugins` 看一眼插件、
+或在某个插件目录里改完代码顺手 `yzng start`，都是极自然的动作，而只看当前目录会**当场在那里
+现建第二个实例** —— 空配置、无账号、面板端口还与上层那个相撞，使用者看到的却是
+「我的账号和插件都没了」。
+
+判据主要是 `package.json` 里声明了 `@yunzai-ng/cli`：装它的唯一理由就是要在这个目录里跑一个
+实例，故全新安装、尚未 `init` 时也成立。插件依赖的是 `core` 与 `types`，绝不依赖 CLI，
+因此插件目录不会被误认。全局安装的实例目录里没有 `package.json`，此时改认
+`config/yunzai.yaml`。嵌套时**就近者胜**。
+
+要在一个实例的子目录里另开一个实例，得显式说 —— `--home .` 或 `YZNG_HOME`，否则会被认作
+上层那一个。
 
 ::: warning 0.1.x 升上来的实例
 0.2.0 起默认主目录由系统位置（Windows 的 `%LOCALAPPDATA%\YunzaiNG` 等）改为**当前目录**，
@@ -58,7 +114,7 @@ node packages\cli\dist\bin.js init
 ## 启动
 
 ```powershell
-node packages\cli\dist\bin.js start
+yzng start
 ```
 
 终端输出面板地址。`dev` 与 `start` 的唯一区别是日志级别为 debug。
@@ -67,19 +123,23 @@ node packages\cli\dist\bin.js start
 追加扫描目录，多个目录以逗号分隔：
 
 ```powershell
-node packages\cli\dist\bin.js start --plugins <插件目录>
+yzng start --plugins <插件目录>
 ```
 
 ## 面板
 
-默认地址为 `http://127.0.0.1:2536`。缺省配置下不设访问令牌，面板仅接受来自本机的请求，
-其余来源一律拒绝。将 `config/yunzai.yaml` 的 `server.host` 改为非本机地址而 `server.token`
-仍为空时，启动阶段自动生成一份令牌、写入该配置项并输出至日志；亦可自行在该处指定。
+默认地址为 `http://127.0.0.1:2536`。**首次启动时内核自动生成一份 16 位访问令牌**，写入
+`config/yunzai.yaml` 的 `server.token` 并在日志里打印一次 —— 首次打开面板须从日志中把它
+抄进去。这与监听地址无关：即使只监听本机也照样生成，因为使用者浏览器里的任何页面都能向
+`127.0.0.1:2536` 发请求，而那正是面板的全部写权限，「本机」不等于「可信」。
+
+令牌抄丢了不必翻日志：面板的令牌页有一枚「发送到日志」，点一下把当前令牌重新打印一遍
+（只接受本机请求，且响应体里不带令牌）。也可以直接改 `server.token` 成自己记得住的值。
 
 令牌经请求头传递（`Authorization: Bearer <令牌>` 或 `x-yunzai-token`），**不读取查询串
 与 Cookie** —— 由此免疫 CSRF，亦不会将令牌留存于浏览器历史与反向代理日志中。
 
-面板含八个页面：概览、账号、日志、插件、插件市场、面板商店、配置、帮助。配置表单并非手写，
+面板含十个页面：概览、账号、日志、插件、扩展页面、插件市场、面板商店、配置、帮助、外观。配置表单并非手写，
 而是由各插件声明的 schema 生成，因此插件新增配置项后面板自动出现对应控件。
 
 ## 安装插件
@@ -92,7 +152,7 @@ node packages\cli\dist\bin.js start --plugins <插件目录>
 ## 环境检查
 
 ```powershell
-node packages\cli\dist\bin.js doctor
+yzng doctor
 ```
 
 该命令检查运行环境版本、主目录与配置、数据三个目录的可写性、原生模块（`classic-level` /
@@ -101,6 +161,39 @@ node packages\cli\dist\bin.js doctor
 
 插件自身的依赖不在检查范围内 —— 该项属各插件职责，启动后查看其日志即可。
 
+## 升级
+
+```powershell
+yzng update              # 升到最新
+yzng update --to 0.4.2   # 升到指定版本（这个号是 cli 的）
+```
+
+该命令自当前目录逐级向上找到装着 `@yunzai-ng/cli` 的那个目录，在那里升级，随后打印四个包
+升级前后的版本对照。**它只对 `cli` 下发一次升级**，另外三个包由 `cli` 的精确依赖带上来 ——
+逐个升反而会装出版本互不匹配的组合，而那时的报错落在插件里（接口凭空缺字段），
+与「我升级过框架」相距很远。
+
+`--to` 收的因此是**`cli` 的版本号**，不是内核的（四个包各自独立编号，`cli` 现为 0.4.2 而内核
+是 0.5.2）。它只接受 dist-tag（`latest` / `next`）与具体版本，**刻意不接受 `^` `~` `>` 一类
+范围**：Windows 上 `pnpm` / `npm` 是 `.cmd`，带 shell 参数时 `^` 是转义字符、`>` 是重定向。
+
+::: tip 报「已是 latest 对应的版本」而你确知有新内核
+多半是发布方只发了 `core` 没发 `cli` —— 那种版本装不到，因为 `cli` 钉着旧 `core`。这一条
+现由框架的发布流水线拦着，0.5.1 之前出过一次。
+:::
+
+若根 `package.json` 的 `dependencies` 里单列了 `core` / `types` / `jsx`，该命令会先把它们
+剪掉并说明原因（理由见[从 npm 安装](#从-npm-安装)）。要保留原样加 `--no-prune`。
+`devDependencies` 里的一律不动 —— 本地写 TypeScript 插件时那是给编译器用的。
+
+升级后须重新 `yzng start`：主目录里指向框架的链接会在启动时按新版本重建。该命令**刻意不在
+升级后就地重建链接** —— 包管理器跑完之后当前进程解析到的仍是旧版本目录，此时重建会把链接
+指向旧版，比不建更糟。用 TypeScript 写的插件也需各自重新编译，否则仍是编译于旧类型、
+运行于新内核。
+
+从源码构建的仓库不适用本命令，用 git 拉取后重新 `pnpm install && pnpm run build`；
+全局安装则直接 `pnpm add -g @yunzai-ng/cli@latest`。两种情形该命令都会给出对应提示。
+
 ## 常见问题
 
 | 现象 | 原因 |
@@ -108,6 +201,11 @@ node packages\cli\dist\bin.js doctor
 | 插件页为空 | 尚未安装任何插件。内核不预装插件，须经面板的插件市场安装或置入 `<home>/plugins` |
 | 插件报 `ERR_MODULE_NOT_FOUND: @yunzai-ng/core` | 框架包未链接至主目录。`init` / `start` 会自动链接，失败时输出 warn 说明原因 |
 | 插件报 `Unknown file extension ".ts"` | TypeScript 插件未编译。入口应指向 `dist/index.js` |
+| 编辑器里接口缺字段，但运行起来正常 | 装了两份内核。根 `package.json` 的 `dependencies` 里单列了 `@yunzai-ng/core`，把它锁在旧版本。执行 `yzng update` |
+| `pnpm update` 只升了 `cli`，内核版本没动 | 同上一条，原因相同 |
 | 面板可打开但无法修改 | `server.readonly` 处于开启状态 |
 | 面板无法启动但机器人正常 | 端口被占用。二者相互独立，端口冲突不会导致消息收发中断 |
 | 启动后无任何账号 | 需先安装适配器插件，再在面板的账号页添加 |
+| 某个账号一直离线，日志里也没动静 | 连续失败已达重连上限，此后不再自动重试（日志里有一条 warn 说明）。面板点「重连」即从头再来，或调大上限 —— 见[重连策略](config.md#适配器-adapter) |
+| 在子目录里 `yzng start` 之后「账号和插件都没了」 | 0.5.0 之前会在那里现建第二个实例。升级后会自当前目录向上找已有实例；那个误建出来的目录可直接删掉 |
+| 插件更新时报「插件市场中没有名为 X 的插件」 | 拿插件的**声明名**当目录名请求了。市场按安装目录寻址，两者常常不同 —— 内核 0.5.2 会直接告诉你该用哪个名字 |
