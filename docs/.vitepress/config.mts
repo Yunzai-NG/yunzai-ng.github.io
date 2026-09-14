@@ -44,6 +44,7 @@ export default defineConfig({
     nav: [
       { text: "快速开始", link: "/getting-started" },
       { text: "插件开发", link: "/plugin-api" },
+      { text: "官方插件", link: "/official-plugins" },
       { text: "框架说明", link: "/architecture" },
       { text: "从 Miao-Yunzai 迁移", link: "/migration" }
     ],
@@ -53,6 +54,8 @@ export default defineConfig({
         text: "入门",
         items: [
           { text: "快速开始", link: "/getting-started" },
+          { text: "CLI 命令", link: "/cli" },
+          { text: "从源码构建", link: "/from-source" },
           { text: "配置与面板", link: "/config" }
         ]
       },
@@ -60,7 +63,7 @@ export default defineConfig({
         /*
          * 官方插件收成一个可展开的分组，每个插件一页
          *
-         * `collapsed: true` 使它默认折起：六个插件平铺会让侧栏比其余三组加起来还长，
+         * `collapsed: true` 使它默认折起：七个插件平铺会让侧栏比其余各组加起来还长，
          * 而多数人只需要读其中一两个。落地页（`/official-plugins`）留着 —— 它回答
          * 「有哪些、装在哪个市场」，那是读任何单页之前要先知道的事。
          */
@@ -70,6 +73,7 @@ export default defineConfig({
           { text: "一览与两个市场", link: "/official-plugins" },
           { text: "webui（面板）", link: "/plugins/webui" },
           { text: "adapter-napcat（QQ）", link: "/plugins/adapter-napcat" },
+          { text: "adapter-qqbot（QQ 官方）", link: "/plugins/adapter-qqbot" },
           { text: "renderer-puppeteer（出图）", link: "/plugins/renderer-puppeteer" },
           { text: "hardware（硬件监控）", link: "/plugins/hardware" },
           { text: "webui-example（示例）", link: "/plugins/webui-example" },
@@ -77,13 +81,34 @@ export default defineConfig({
         ]
       },
       {
-        text: "开发",
+        /*
+         * 插件开发单列一组，且**不折起**
+         *
+         * 这一组决定别人愿不愿意为本框架写插件，故按「上手 → 发消息 → 命令 → 存储 →
+         * 协作 → 接平台/出图 → 发布」的学习顺序排，而不是按字母或文件名。
+         * `/plugin-api` 留在首位作为入口页（面板帮助页链的就是这个路径）。
+         *
+         * 适配器与渲染器也在这一组：写它们同样是 `definePlugin` 加一次
+         * `ctx.registerAdapter` / `ctx.registerRenderer`，与写命令是同一件事的不同侧面。
+         * 放进「扩展」组会与插件市场、扩展页面混在一起 —— 那两页讲的是插件写完之后的事。
+         */
+        text: "插件开发",
         items: [
-          { text: "插件开发", link: "/plugin-api" },
-          { text: "面板插件", link: "/panel-plugin" },
-          { text: "扩展页面", link: "/custom-page" },
+          { text: "上手", link: "/plugin-api" },
+          { text: "发消息", link: "/plugin/message" },
+          { text: "命令与事件", link: "/plugin/command" },
+          { text: "配置与存储", link: "/plugin/storage" },
+          { text: "定时任务与协作", link: "/plugin/service" },
           { text: "适配器开发", link: "/adapter" },
           { text: "渲染与模板", link: "/renderer" },
+          { text: "测试与发布", link: "/plugin/publish" }
+        ]
+      },
+      {
+        text: "扩展面板",
+        items: [
+          { text: "面板插件", link: "/panel-plugin" },
+          { text: "扩展页面", link: "/custom-page" },
           { text: "插件市场", link: "/market" }
         ]
       },

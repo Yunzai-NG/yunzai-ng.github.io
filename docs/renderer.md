@@ -140,3 +140,9 @@ ctx.registerRenderer({
 
 Android 设备与小内存 VPS 上按以下三项调整：`render.scale` 保持为 1、`pages` 设为 1、
 `restartAfter` 调小（如 50）。另见[配置](config.md#低内存设备)与[性能基线](perf.md)。
+
+## 下一步
+
+- [发消息](plugin/message.md) —— 出图之后怎么发，以及只出图不发的写法
+- [renderer-puppeteer](plugins/renderer-puppeteer.md) —— 官方渲染器的实现与配置项
+- [测试与发布](plugin/publish.md) —— 模板是纯函数，可直接快照测试
