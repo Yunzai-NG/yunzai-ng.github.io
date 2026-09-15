@@ -55,7 +55,7 @@ host.onDispose(fn)              断开时逆序执行
 host.setStatus(status, detail?) 上报 connecting / online / error，面板实时反映
 ```
 
-四条硬约束：
+五条硬约束：
 
 1. **`submit()` 同步返回，不应等待其结果。** 内核内部异步派发，适配器不应关心处理结果。
 2. **联系人缓存必须使用 `host.createCache`，不得使用裸 `Map`。** 旧适配器将整个群的成员表
@@ -64,6 +64,10 @@ host.setStatus(status, detail?) 上报 connecting / online / error，面板实�
    内核将在卸载时调用该方法并据此断言。
 4. **被动模式须先检查 `host.server.enabled`。** 用户可关闭内置服务器；反向 WebSocket 与
    HTTP 回调应在创建账号时即提示该模式需先启用内置服务器，而非等待对端连接失败后再行推断。
+5. **自身消息投不投由适配器决定，内核不再过滤。** 平台若回报机器人自己发出的消息
+   （OneBot 的 `message_sent`），缺省不要 `submit()`，并给一个账号配置项让使用者开启 ——
+   开启后复读一类的命令会回复自己的回复，一条指令派生出无限条。QQ 官方 API 不回报自身消息，
+   这类平台无需该开关。
 
 ## 事件：仅填写平台确实提供的字段
 
