@@ -45,6 +45,7 @@ export default defineConfig({
       { text: "快速开始", link: "/getting-started" },
       { text: "插件开发", link: "/plugin-api" },
       { text: "官方插件", link: "/official-plugins" },
+      { text: "插件商店", link: "/store" },
       { text: "框架说明", link: "/architecture" },
       { text: "从 Miao-Yunzai 迁移", link: "/migration" }
     ],
@@ -55,6 +56,7 @@ export default defineConfig({
         items: [
           { text: "快速开始", link: "/getting-started" },
           { text: "CLI 命令", link: "/cli" },
+          { text: "部署与长期运行", link: "/deploy" },
           { text: "从源码构建", link: "/from-source" },
           { text: "配置与面板", link: "/config" }
         ]
@@ -63,7 +65,7 @@ export default defineConfig({
         /*
          * 官方插件收成一个可展开的分组，每个插件一页
          *
-         * `collapsed: true` 使它默认折起：七个插件平铺会让侧栏比其余各组加起来还长，
+         * `collapsed: true` 使它默认折起：十来个插件平铺会让侧栏比其余各组加起来还长，
          * 而多数人只需要读其中一两个。落地页（`/official-plugins`）留着 —— 它回答
          * 「有哪些、装在哪个市场」，那是读任何单页之前要先知道的事。
          */
@@ -71,13 +73,18 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: "一览与两个市场", link: "/official-plugins" },
+          { text: "插件商店", link: "/store" },
           { text: "webui（面板）", link: "/plugins/webui" },
           { text: "adapter-napcat（QQ）", link: "/plugins/adapter-napcat" },
           { text: "adapter-qqbot（QQ 官方）", link: "/plugins/adapter-qqbot" },
+          { text: "adapter-stdin（终端调试）", link: "/plugins/adapter-stdin" },
           { text: "renderer-puppeteer（出图）", link: "/plugins/renderer-puppeteer" },
           { text: "hardware（硬件监控）", link: "/plugins/hardware" },
           { text: "webui-example（示例）", link: "/plugins/webui-example" },
-          { text: "mhy-game（米游社）", link: "/plugins/mhy-game" }
+          { text: "mhy-game（米游社）", link: "/plugins/mhy-game" },
+          { text: "yenai-state（状态图）", link: "/plugins/yenai-state" },
+          { text: "steward（运维）", link: "/plugins/steward" },
+          { text: "TermZero（远程执行）", link: "/plugins/termzero" }
         ]
       },
       {

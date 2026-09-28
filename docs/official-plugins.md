@@ -3,6 +3,8 @@
 内核之外的全部能力都由插件提供：适配器、渲染器、面板、业务功能。这一节逐个说清它们做什么、
 装在哪、以及各自还需要什么。
 
+本页只列**官方**插件并带上手指引；要浏览索引里的全部插件（含第三方），见[插件商店](/store)，那份列表直接读[插件索引](https://github.com/Yunzai-NG/plugin-index)、与面板内的插件市场同源。
+
 ## 一览
 
 | 插件 | 作用 | 装在哪 | 额外要求 |
@@ -10,10 +12,14 @@
 | [webui](/plugins/webui) | 面板本身：十个页面、配置表单、面板插件宿主与商店 | 插件市场 | 无 |
 | [adapter-napcat](/plugins/adapter-napcat) | 以 OneBot v11 接入 NapCat，提供 QQ 收发 | 插件市场 | 一个在跑的 NapCat |
 | [adapter-qqbot](/plugins/adapter-qqbot) | 接入 QQ 官方机器人，群 / 私聊 / 频道四场景 | 插件市场 | QQ 开放平台的 AppID 与 AppSecret |
+| [adapter-stdin](/plugins/adapter-stdin) | 把运行框架的终端本身当账号，用于没有 QQ 环境时调试命令 | 插件市场 | 无（默认配置即可用；pm2 之下没有 TTY 用不了） |
 | [renderer-puppeteer](/plugins/renderer-puppeteer) | 把模板渲染成图片 | 插件市场 | 无（浏览器随装后步骤自动下载） |
 | [hardware](/plugins/hardware) | 整机硬件监控，十枚面板组件 | **面板商店** | 装完要重载 webui |
 | [webui-example](/plugins/webui-example) | 面板插件的示例包，用于照抄 | **面板商店** | 装完要重载 webui |
 | [mhy-game](/plugins/mhy-game) | 原神 / 星穹铁道 / 绝区零 查询 | 插件市场 | 渲染器（否则退回文字） |
+| [yenai-state](/plugins/yenai-state) | 椰奶风格的机器人状态图：CPU / 内存 / 磁盘 / 网络 / 进程等 | 插件市场 | 渲染器（出图） |
+| [steward](/plugins/steward) | 指令运维：`#重启` / `#关机` / 更新插件与内核，全限主人 | 插件市场 | 无（重启、关机借 `yzng start` 的[自带守护](/cli#自带进程守护)） |
+| [TermZero](/plugins/termzero) | 远程执行：跑 JS / Shell、看源码、渲 Markdown，全限主人 | 插件市场 | 出图版需渲染器（否则回文本） |
 
 ## 两类插件，两个市场
 
@@ -29,7 +35,7 @@
 
 两份索引的顶层键刻意不同名：填错了地方会当场报「格式不符」，而不是列出一堆装到错处的条目。
 
-上表里 `hardware` 与 `webui-example` 是面板插件包，其余五个是内核插件。
+上表里 `hardware` 与 `webui-example` 是面板插件包，其余是内核插件。
 
 ## 想自己写一个
 

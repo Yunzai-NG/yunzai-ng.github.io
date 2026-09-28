@@ -56,6 +56,8 @@ yzng init
 输出主目录、配置、数据、日志、插件、临时六个位置。**幂等**，对已长期运行的实例重复执行同样安全，
 已存在的文件不会被覆盖。
 
+建好目录后会**问一句是否安装官方面板 webui**（推荐，直接回车即安装）—— 面板是插件而非内核内置，不装的话下一步 `start` 打开只有 `/api`、没有页面。想装第三方面板就选否。`--webui` / `--no-webui` 可跳过询问；细节与国内网络的镜像设置见 [CLI 命令](cli.md#安装官方面板)。
+
 主目录的选取顺序：`--home` > 环境变量 `YZNG_HOME` > 便携模式（安装目录下有 `.portable` 文件）>
 **自当前目录向上找到的实例** > 当前工作目录。详见 [CLI 命令](cli.md#主目录怎么定)。
 
@@ -71,6 +73,8 @@ yzng start
 ```
 
 终端输出面板地址与访问令牌。`dev` 与 `start` 的唯一区别是日志级别为 debug。
+
+`yzng start` 缺省自带进程守护，裸起也能重启与关机（[steward](official-plugins.md) 插件的 `#重启` / `#关机`），无须额外挂 pm2 / systemd；已有外部守护时用 `yzng start --no-supervise`。细节见 [CLI 命令](cli.md#自带进程守护)。
 
 ## 打开面板
 
@@ -103,6 +107,7 @@ yzng start
 
 ## 下一步
 
+- 让它一直跑（开机自启、pm2 / systemd）：[部署与长期运行](deploy.md)
 - 检查环境：`yzng doctor`，见 [CLI 命令](cli.md#yzng-doctor)
 - 升级框架：`yzng update`，见 [CLI 命令](cli.md#yzng-update)
 - 调内核配置：[配置与面板](config.md)

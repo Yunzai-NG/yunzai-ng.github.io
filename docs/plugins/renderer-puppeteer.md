@@ -36,6 +36,10 @@ Android 更是连平台都识别不出。这两处需自行 `apt install chromiu
 
 一个都没有时插件照常加载，只是渲染时给出一句说明原因的错误 —— 而不是让整个插件加载失败。
 
+::: tip Windows 下出图弹黑框？
+以 pm2 / 服务这类无控制台方式启动时，出图会弹一个黑色终端窗口（`chrome-headless-shell` 的控制台）；终端里 `yzng start` 则不会。这是 Windows 的控制台继承，不是本插件的缺陷 —— 成因与规避见[部署 · 浏览器黑框](/deploy#浏览器黑框-windows)。
+:::
+
 ## 关键实现
 
 **不 import puppeteer 的那一半逻辑单独成文件。** 页面池与生命周期在 `src/browser.ts`，真实的
