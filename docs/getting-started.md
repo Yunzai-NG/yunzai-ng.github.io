@@ -59,7 +59,7 @@ yzng init
 建好目录后会**问一句是否安装官方面板 webui**（推荐，直接回车即安装）—— 面板是插件而非内核内置，不装的话下一步 `start` 打开只有 `/api`、没有页面。想装第三方面板就选否。`--webui` / `--no-webui` 可跳过询问；细节与国内网络的镜像设置见 [CLI 命令](cli.md#安装官方面板)。
 
 主目录的选取顺序：`--home` > 环境变量 `YZNG_HOME` > 便携模式（安装目录下有 `.portable` 文件）>
-**自当前目录向上找到的实例** > 当前工作目录。详见 [CLI 命令](cli.md#主目录怎么定)。
+**自当前目录向上找到的实例** > 当前工作目录。详见 [CLI 命令](cli.md#全局选项)。
 
 ::: warning 以服务方式启动时必须给 YZNG_HOME
 Windows 服务、开机自启或 pm2 启动时工作目录并非项目目录，不显式给出 `YZNG_HOME` 的话，
@@ -108,8 +108,8 @@ yzng start
 ## 下一步
 
 - 让它一直跑（开机自启、pm2 / systemd）：[部署与长期运行](deploy.md)
-- 检查环境：`yzng doctor`，见 [CLI 命令](cli.md#yzng-doctor)
-- 升级框架：`yzng update`，见 [CLI 命令](cli.md#yzng-update)
+- 检查环境：`yzng doctor`，见 [CLI 命令](cli.md#doctor)
+- 升级框架：`yzng update`，见 [CLI 命令](cli.md#update)
 - 调内核配置：[配置与面板](config.md)
 - 写自己的插件：[插件开发](plugin-api.md)
 

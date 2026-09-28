@@ -1,6 +1,6 @@
 # 任务与协作
 
-定时任务、插件之间互相调用、HTTP 路由，以及资源该怎么收。
+定时任务、插件之间互相调用、HTTP 路由、资源该怎么收，以及更新插件与重启关机的维护面。
 
 ## 定时任务
 
@@ -130,6 +130,68 @@ ctx.on("app/ready", async () => { await 预热() })
 | `render/done` | 一次渲染结束 |
 
 **预热放 `app/ready`，别放 `setup`** —— `setup` 有 30 秒超时。保存状态放 `app/stopping`。
+
+## 维护面
+
+`ctx.app.maintenance` 让插件做三件本该登录机器才能做的事：更新已装插件、重启、关机。
+官方的 [steward](../plugins/steward.md) 就建在它上面；要做同类插件读这一节，只想用现成的直接装 steward。
+
+```js
+const maint = ctx.app.maintenance
+
+const outcome = await maint.updatePlugin("webui")   // 收的是安装目录名
+if (outcome.changed !== false) await maint.reloadPlugin("webui")  // 重载收声明名
+```
+
+| 成员 | 作用 |
+|---|---|
+| `supervisor` | 探测到的守护类型：`"yzng"` / `"pm2"` / `"systemd"`，判不出时 `undefined` |
+| `canRestart` / `canShutdown` | 宿主有没有接管重启 / 关机 |
+| `inspectUpdate(name)` | 只读探测，回 `{ willPull, dirty }` |
+| `updatePlugin(name, opts?)` | 更新一个已装插件，含装依赖与装后步骤 |
+| `reloadPlugin(name)` | 重载，使新代码生效 |
+| `requestRestart(req?)` / `requestShutdown(req?)` | 优雅停机，之后交给宿主退出 |
+
+**刻意不开放安装与删除。** 市场能装任意 git 仓库，等于任意代码执行；而更新已装插件是就地
+`fetch` + `reset`，那个仓库早被信任过一次。两者信任边界不同，故维护面只给后者。
+
+### 更新结果里该看哪几项
+
+`updatePlugin` 的返回值（`PluginUpdateOutcome`）比市场那份窄，只留「更新到了哪一版、有没有真的变、
+本地改动去哪了」。做自动重载的插件要盯住三项：
+
+| 字段 | 该怎么用 |
+|---|---|
+| `changed` | 为 `false` 即远端没有新提交，**不该重载** —— 白付代价还可能打断它 |
+| `dependencyError` / `setupError` | 任一存在即**不该重载**：产物还是旧的，换上去只会把一份跑不起来的代码顶替正在正常工作的那份 |
+| `commits` | 这次拉来的新提交（`{ hash, time, subject }`，新的在前），可发给使用者当更新日志 |
+
+`commits` 只在就地拉取且取得到历史时存在。拉取用的是 `--depth 1`，新提交的父链不在本地，
+故内核会先按上限补拉一次历史再取区间；补拉失败就退化成只报最新一条，取不到就不报 ——
+这一步失败一律不挡更新。
+
+### 重启与关机
+
+内核**没有**自我重启的能力。两者做的都是「优雅停机后以一个约定的退出码退出」，再由守护决定拉不拉：
+重启用 75（守护据此拉起），关机用 0（守护认作「别再拉起」）。CLI 0.6.0 起 `yzng start`
+[自带守护](../cli.md#自带进程守护)，故裸起也能用。
+
+```js
+await e.reply("正在重启，稍等十几秒")   // 先把话说完
+await maint.requestRestart({ reason: `主人 ${e.sender.uid} 通过指令重启` })
+```
+
+::: warning 先 await 回话，再请求停机
+调用后当前进程即进入停机流程，会卸载你这个插件。顺序反了那句「正在重启」还在发送队列里就被带走了。
+:::
+
+`canRestart` **不能**用来判断有没有守护 —— `yzng start` 不论有无守护都会接管重启，故它在任何
+`yzng start` 起的实例上都为真。它为假只出现在内核被嵌进别的程序、或跑单元测试时。同理
+`supervisor` 探测不到也不等于没有守护（Windows 服务一类不留可识别痕迹），故它只适合「能确认时
+给使用者一句准话」，不可拿来拒绝重启。
+
+停机会带走当前会话，故要让使用者知道「回来了」得自己跨重启留个记录：停机前把目标会话写进
+`ctx.kv`，重启后在 `bot/online` 里读出来补发一句。别挂 `app/ready` —— 那时账号未必已重连。
 
 ## 日志
 

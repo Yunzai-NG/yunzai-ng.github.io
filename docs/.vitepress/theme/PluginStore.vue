@@ -20,6 +20,19 @@ interface Entry {
   minCore?: string
   minWebui?: string
   widgets?: number
+  install?: { url?: string }
+}
+
+/**
+ * 取一条的落点地址
+ *
+ * `homepage` 在两侧的解析器里都是可选的，缺了就回退到 `install.url`（那一项是必填，
+ * CI 校验着）—— 否则卡片会渲染成一个没有 href 的 `<a>`，点下去毫无反应。
+ * @param p 条目
+ * @returns 可点开的地址；两者都没有时 undefined
+ */
+function linkOf(p: Entry): string | undefined {
+  return p.homepage ?? p.install?.url
 }
 
 /** 索引所在仓库；两个 JSON 都在其根部 */
@@ -43,17 +56,20 @@ const officialOnly = ref(false)
 /** 排序：默认（官方在前按名） / 名称 */
 const sort = ref<"default" | "name">("default")
 
+/** 一份索引的两种可能形状：带顶层键的对象，或（内核那份）裸数组 */
+type RawIndex = { plugins?: unknown; panels?: unknown } | unknown[]
+
 /**
  * 依次尝试各取源，第一个成功的即返回
  * @param file 索引文件名
  * @returns 解析后的 JSON
  */
-async function fetchJson(file: string): Promise<any> {
+async function fetchJson(file: string): Promise<RawIndex> {
   let lastErr: unknown
   for (const base of bases) {
     try {
       const res = await fetch(`${base}/${file}`, { cache: "no-cache" })
-      if (res.ok) return await res.json()
+      if (res.ok) return (await res.json()) as RawIndex
       lastErr = new Error(`HTTP ${res.status}`)
     } catch (err) {
       lastErr = err
@@ -62,16 +78,35 @@ async function fetchJson(file: string): Promise<any> {
   throw lastErr
 }
 
+/**
+ * 从一份索引里取出条目数组
+ *
+ * 内核的解析器接受两种形状：`{ plugins: [...] }` 与顶层直接是数组；面板那份**只认**
+ * `{ panels: [...] }`（顶层键刻意不同名，好让填错地方的索引当场报错而非列出一堆装错处的条目）。
+ * 此处照同一套规则取，故裸数组形式的内核索引在本页也显示得出来。
+ * @param raw 解析后的索引
+ * @param key 该份索引的顶层键
+ * @param bareArray 是否接受顶层裸数组
+ * @returns 条目数组；形状不符时空数组
+ */
+function entriesOf(raw: RawIndex | undefined, key: "plugins" | "panels", bareArray: boolean): Entry[] {
+  if (raw === undefined) return []
+  if (Array.isArray(raw)) return bareArray ? (raw as Entry[]) : []
+  const list = raw[key]
+  return Array.isArray(list) ? (list as Entry[]) : []
+}
+
 onMounted(async () => {
-  try {
-    const [idx, webui] = await Promise.all([fetchJson("index.json"), fetchJson("webui_index.json")])
-    plugins.value = Array.isArray(idx?.plugins) ? idx.plugins : []
-    panels.value = Array.isArray(webui?.panels) ? webui.panels : []
-  } catch {
-    failed.value = true
-  } finally {
-    loading.value = false
-  }
+  // 两份索引各自成败：用 Promise.all 的话一份取不到就整页报失败，而另一份明明拿到了
+  const [idx, webui] = await Promise.all([
+    fetchJson("index.json").catch(() => undefined),
+    fetchJson("webui_index.json").catch(() => undefined)
+  ])
+  plugins.value = entriesOf(idx, "plugins", true)
+  panels.value = entriesOf(webui, "panels", false)
+  // 两份都没拿到才算失败；只缺一份时那个页签显示自己的空态，另一份照常可浏览
+  failed.value = idx === undefined && webui === undefined
+  loading.value = false
 })
 
 /** 切页签时清掉只对上一份有意义的标签筛选 */
@@ -105,10 +140,11 @@ const shown = computed(() => {
     const hay = `${p.name} ${p.title ?? ""} ${p.description ?? ""} ${p.author ?? ""} ${(p.tags ?? []).join(" ")}`
     return hay.toLowerCase().includes(q)
   })
+  // 官方与否按 `=== true` 取，不用 Number()：漏写 official 的条目会让它得 NaN，
+  // 而 NaN 相减再减也是 NaN、`NaN || cmp` 恰好落到按名排序，于是「官方在前」静默失效
+  const rank = (p: Entry): number => (p.official === true ? 0 : 1)
   list = [...list].sort((a, b) =>
-    sort.value === "name"
-      ? a.name.localeCompare(b.name)
-      : Number(b.official) - Number(a.official) || a.name.localeCompare(b.name)
+    sort.value === "name" ? a.name.localeCompare(b.name) : rank(a) - rank(b) || a.name.localeCompare(b.name)
   )
   return list
 })
@@ -169,7 +205,7 @@ const total = computed(() => plugins.value.length + panels.value.length)
           v-for="p in shown"
           :key="p.name"
           class="card"
-          :href="p.homepage"
+          :href="linkOf(p)"
           target="_blank"
           rel="noreferrer"
         >

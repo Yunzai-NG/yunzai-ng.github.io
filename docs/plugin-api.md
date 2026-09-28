@@ -64,7 +64,7 @@ export default definePlugin({
 | [发消息](plugin/message.md) | 文本、图片、@、引用、转发、渲染出图、主动推送 |
 | [命令与事件](plugin/command.md) | 命令怎么声明、事件对象上有什么、中间件、追问 |
 | [配置与存储](plugin/storage.md) | schema 驱动的配置、KV、SQLite、缓存 |
-| [任务与协作](plugin/service.md) | 定时任务、插件间服务、HTTP 路由、资源回收 |
+| [任务与协作](plugin/service.md) | 定时任务、插件间服务、HTTP 路由、资源回收、维护面 |
 | [测试与发布](plugin/publish.md) | Mock 适配器、TypeScript、发到插件市场 |
 
 ## 目录与入口
@@ -131,7 +131,7 @@ export default definePlugin({
 | `ctx.logger` | 自动带插件名的 child logger |
 | `ctx.kv` | 已绑定 `plugin:<name>:` 前缀的 KV |
 | `ctx.config` | 配置句柄，没声明 schema 时 `get()` 返回空对象 |
-| `ctx.app` | 应用只读视图（版本、paths、platform、adapters、bots、accounts、plugins、policy、server、`usage()`） |
+| `ctx.app` | 应用只读视图（版本、paths、platform、adapters、bots、accounts、plugins、policy、server、`usage()`、[`maintenance`](plugin/service.md#维护面)） |
 | `ctx.http` | 带全局代理、超时与重试缺省值的 HTTP 客户端，**已绑定 `ctx.signal`** |
 | `ctx.signal` | 插件卸载时 abort，可直接传给 `fetch` |
 

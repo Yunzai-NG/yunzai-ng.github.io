@@ -177,7 +177,7 @@ yzng update --to next      # dist-tag
 | `--no-prune` | 保留 `package.json` 里单列的框架依赖 |
 
 ::: warning --to 收的是 cli 的版本号
-四个包各自独立编号，`cli` 现为 0.6.0 而内核是 0.6.2。该选项**只接受 dist-tag
+四个包各自独立编号，`cli` 的号与内核的号并不相同（`yzng -v` 报的是 cli 的，面板首页与启动横幅报的是内核的）。该选项**只接受 dist-tag
 （`latest` / `next`）与具体版本，不接受 `^` `~` `>` 一类范围** —— Windows 上 `pnpm` / `npm`
 是 `.cmd`，那几个字符会被 shell 当成转义与重定向。
 :::
