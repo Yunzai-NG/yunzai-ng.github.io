@@ -94,11 +94,6 @@ TypeScript 插件必须编译到 `dist/index.js` 并声明 `"main": "dist/index.
 
 ```ts
 export default definePlugin({
-  name: "mhy-game",          // 必填
-  version: "1.0.0",
-  description: "原神 / 星穹铁道 / 绝区零",
-  author: "…",
-  homepage: "…",
   dependencies: ["renderer-puppeteer"],
   provides: ["mihoyo.api"],
   priority: 100,             // 小者先加载
@@ -107,8 +102,21 @@ export default definePlugin({
 })
 ```
 
-`name` 要匹配 `/^[a-z][a-z0-9._-]*$/i`，它同时是配置文件名、KV 命名空间前缀、URL 前缀和日志 scope。
-名字非法在 `import` 那一刻就抛错。
+只有 `setup` 必填。**名字、版本、说明、作者、主页缺省都取 `package.json`**，发版只改那一处：
+
+| 字段 | 省略时取 |
+|---|---|
+| `name` | `yunzai.name` → 去掉 scope 的 `name` → 目录名（单文件插件取文件名） |
+| `version` `description` `homepage` | 同名字段 |
+| `author` | `author`，字符串与 `{ "name": … }` 两种写法都认 |
+
+在 `definePlugin` 里写了的照旧优先。版本两边都写了又不一致时，内核以入口为准并记一条警告。
+**这需要内核 0.6.5 及以上**；要兼容更早的内核，`name` 得在入口里写明，并把 `peerDependencies`
+里 `@yunzai-ng/core` 的下限照实填写。
+
+插件名要匹配 `/^[a-z][a-z0-9._-]*$/i`，它同时是配置文件名、KV 命名空间前缀、URL 前缀和日志 scope。
+入口里写的名字非法，在 `import` 那一刻就抛错；取自 `package.json` 或目录名的名字非法，只让这一个插件
+加载失败，报错会说明名字从哪来 —— 目录名能带中文与空格，那时在 `definePlugin` 里写明 `name` 即可。
 
 `dependencies` 只影响加载顺序与存活判定：**依赖缺失只让本插件跳过并记一条 warn，内核照常启动。**
 
