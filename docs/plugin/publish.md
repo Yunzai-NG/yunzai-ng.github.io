@@ -58,6 +58,9 @@ export default plugin
 
 `MyConfig` 就是 `configSchema` 推出来的类型（`Infer<typeof 你的 schema>`）；
 没声明 `configSchema` 时写 `PluginDefinition<Record<string, never>>`。
+
+`definePlugin` 里省了 `name` 时返回的是 `PluginDeclaration`（`name` 可空，由内核从 package.json 补），
+标注改写 `import type { PluginDeclaration } from "@yunzai-ng/core"`。
 :::
 
 ## 发布到插件市场
@@ -82,12 +85,12 @@ export default plugin
 
 | | |
 |---|---|
-| `name` | **就是安装目录名**，不必等于 `definePlugin` 里的声明名 |
+| `name` | **就是安装目录名**，不必等于插件名 |
 | `install.url` | 只能是 `http://` 或 `https://`，SSH 地址填不得 |
 | `minCore` | 填**真正必需**的那个版本，不是当前最新版 |
 
 ::: warning name 填错的后果
-市场按 `plugins/<name>` 寻址，插件宿主按 `definePlugin({ name })` 寻址，两者本就常常不同。
+市场按 `plugins/<name>` 寻址，插件宿主按插件名（`definePlugin` 的 `name`，省了取 package.json）寻址，两者本就常常不同。
 把索引里的 `name` 「修」成声明名，会让市场装到一个新目录、同时不再认得已装的那些 ——
 界面上表现为「已安装」变回「未安装」。
 :::

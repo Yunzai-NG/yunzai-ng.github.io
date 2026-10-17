@@ -9,7 +9,7 @@
 
 | 插件 | 作用 | 装在哪 | 额外要求 |
 |---|---|---|---|
-| [webui](/plugins/webui) | 面板本身：十个页面、配置表单、面板插件宿主与商店 | 插件市场 | 无 |
+| [webui](/plugins/webui) | 面板本身：十一个页面、配置表单、面板插件宿主与商店 | 插件市场 | 无 |
 | [adapter-napcat](/plugins/adapter-napcat) | 以 OneBot v11 接入 NapCat，提供 QQ 收发 | 插件市场 | 一个在跑的 NapCat |
 | [adapter-qqbot](/plugins/adapter-qqbot) | 接入 QQ 官方机器人，群 / 私聊 / 频道四场景 | 插件市场 | QQ 开放平台的 AppID 与 AppSecret |
 | [adapter-stdin](/plugins/adapter-stdin) | 把运行框架的终端本身当账号，用于没有 QQ 环境时调试命令 | 插件市场 | 无（默认配置即可用；pm2 之下没有 TTY 用不了） |
@@ -28,10 +28,10 @@
 | | 内核插件 | 面板插件包 |
 |---|---|---|
 | 是什么 | 跑在 node 进程里，可注册命令、任务、适配器、渲染器 | 跑在浏览器里，往面板上加组件与页签 |
-| 装在哪 | 插件市场 → `plugins/` | 面板商店 → webui 目录下的 `plugins/` |
+| 装在哪 | 插件市场 → `plugins/`；单个 js 放 `plugins/example/` | 面板商店 → webui 目录下的 `plugins/` |
 | 索引 | `index.json`，顶层键 `plugins` | `webui_index.json`，顶层键 `panels` |
 | 版本门 | `minCore`（内核版本） | `minWebui`（webui 版本） |
-| 写法 | `definePlugin({ name, setup })` | `export default [组件…]` |
+| 写法 | `definePlugin({ setup })`，名字与版本取 package.json | `export default [组件…]` |
 
 两份索引的顶层键刻意不同名：填错了地方会当场报「格式不符」，而不是列出一堆装到错处的条目。
 

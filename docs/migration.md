@@ -10,6 +10,10 @@
 改写量小于表面所见：典型的 miao 插件中，业务逻辑本身（伤害计算、数据组装、模板编写）
 无须改动，需要改写的仅是外壳。
 
+**放的位置不变。** 单个 js 的小功能照旧放 `plugins/example/`，每个文件各是一个插件，启动时该目录
+已建好；成套的插件照旧一个目录。改写好的单文件见[单文件插件](plugin-api.md#单文件插件)。未改写的
+旧文件放进来会报 `plugin is not defined`，日志里附有指向本页的说明 —— 一个文件出错不影响其余。
+
 ## 对照表
 
 | 项目 | Miao-Yunzai | Yunzai NG |
@@ -49,9 +53,8 @@ export class example extends plugin {
 ```
 
 ```ts
-// 新
+// 新：plugins/example/example.js（名字缺省取文件名；中文文件名时写明 name）
 export default definePlugin({
-  name: "example",
   setup(ctx) {
     ctx.command("#体力").desc("查询体力").action(async e => { await e.reply("查询中") })
     ctx.command("#签到", { master: true }).action(async e => { /* … */ })
@@ -193,7 +196,8 @@ if (api === undefined) return e.reply("请先安装 mhy-game 插件")
 
 ## 建议的迁移顺序
 
-1. 执行 `yzng plugin new <名字>`，先使 `#ping` 可用。
+1. 执行 `yzng plugin new <名字>`，先使 `#ping` 可用。只有一个 js 的旧插件跳过这一步，
+   直接在 `plugins/example/` 里改写。
 2. 将旧插件中的**纯逻辑文件**（算法、数据处理）原样复制过来，它们通常不涉及任何全局变量。
 3. 将 `rule[]` 逐条翻译为 `ctx.command`。建议先迁移一条最简单的命令并验证可用。
 4. 将 `redis.*` 替换为 `ctx.kv.*`，并去除键前缀。

@@ -16,8 +16,8 @@ yzng dev
 import { definePlugin, s } from "@yunzai-ng/core"
 
 export default definePlugin({
+  // 版本、说明与作者取自 package.json；name 也可省
   name: "hello",
-  version: "0.1.0",
 
   configSchema: s.object({
     greeting: s.string().default("pong").title("回复内容")
@@ -38,11 +38,13 @@ export default definePlugin({
 声明了 `configSchema` 就自动有了 `config/hello.yaml` 和面板里的一张表单 ——
 不用自己写文件读写，也不用为面板写任何前端代码。
 
-## 最小形态
+## 单文件插件
 
-不想要脚手架的话，一个文件就够。放 `<home>/plugins/我的小功能.js`：
+不想要脚手架的话，一个文件就够。放进 `<home>/plugins/example/`（启动时已建好），与 Miao-Yunzai
+的 `plugins/example` 同用法：
 
 ```js
+// plugins/example/你好.js
 import { definePlugin } from "@yunzai-ng/core"
 
 export default definePlugin({
@@ -53,7 +55,22 @@ export default definePlugin({
 })
 ```
 
-几十行的小功能不必建目录和 `package.json`。
+几十行的小功能不必建目录和 `package.json`。改完在面板插件页点重载。
+
+- **一个文件一个插件**，名字缺省取文件名。文件名是中文时要在 `definePlugin` 里写明 `name`
+  （插件名的规则见[下文](#defineplugin)），上例即是。
+- **只看顶层**：子目录与 `_` 开头的文件不当插件加载，留给几个文件共用的代码。
+- `ctx.root` 是 `plugins/example/`，故几个单文件插件共用同一份 `templates/` 与 `resources/`。
+- 认的是 `.js` 与 `.mjs`。直接放在 `plugins/` 下的 js 同样是单文件插件。
+- `example` 只是默认建好的那一个：`plugins/` 下**既没有 `package.json` 也找不到入口**的目录都按
+  这个规则处理，想分组就多建几个。
+
+::: warning 旧框架的单文件插件不能直接放进来
+`class x extends plugin { … }` 依赖的全局 `plugin`、`segment`、`Bot` 在这里都不存在，放进来会报
+`plugin is not defined`，日志里附有说明。改写见[从 Miao-Yunzai 迁移](migration.md)，通常只动外壳。
+:::
+
+单文件插件不归市场管：面板插件页上它们标着「单文件」，只能查看、重载、卸载；增删改直接动那个文件。
 
 ## 分册
 
@@ -87,6 +104,9 @@ TypeScript 插件必须编译到 `dist/index.js` 并声明 `"main": "dist/index.
 以 `.` 或 `_` 开头的目录会被跳过（`_` 是「作者临时禁用」的约定）；`package.json` 里写
 `"yunzai": { "disabled": true }` 也跳过。
 
+有 `package.json` 而找不到入口的目录报「找不到入口」并跳过，不会把里面的 `eslint.config.js`
+之类当插件；两样都没有的目录是单文件插件的合集，见[单文件插件](#单文件插件)。
+
 同名插件只留先扫到的那份，扫描顺序是 `--plugins` 指定的目录 → `<home>/plugins` → 发行版预置目录。
 所以把预置插件复制一份到用户插件目录改，就能覆盖原插件而不动发行版内容。
 
@@ -106,7 +126,7 @@ export default definePlugin({
 
 | 字段 | 省略时取 |
 |---|---|
-| `name` | `yunzai.name` → 去掉 scope 的 `name` → 目录名（单文件插件取文件名） |
+| `name` | `yunzai.name` → 去掉 scope 的 `name` → 目录名（单文件插件取文件名，不含扩展名） |
 | `version` `description` `homepage` | 同名字段 |
 | `author` | `author`，字符串与 `{ "name": … }` 两种写法都认 |
 
@@ -115,8 +135,8 @@ export default definePlugin({
 里 `@yunzai-ng/core` 的下限照实填写。
 
 插件名要匹配 `/^[a-z][a-z0-9._-]*$/i`，它同时是配置文件名、KV 命名空间前缀、URL 前缀和日志 scope。
-入口里写的名字非法，在 `import` 那一刻就抛错；取自 `package.json` 或目录名的名字非法，只让这一个插件
-加载失败，报错会说明名字从哪来 —— 目录名能带中文与空格，那时在 `definePlugin` 里写明 `name` 即可。
+入口里写的名字非法，在 `import` 那一刻就抛错；取自 `package.json`、目录名或文件名的名字非法，只让这一个
+插件加载失败，报错会说明名字从哪来 —— 目录名与文件名能带中文与空格，那时在 `definePlugin` 里写明 `name` 即可。
 
 `dependencies` 只影响加载顺序与存活判定：**依赖缺失只让本插件跳过并记一条 warn，内核照常启动。**
 

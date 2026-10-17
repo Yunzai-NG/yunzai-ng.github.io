@@ -74,8 +74,8 @@ JSON 索引文件读取可用插件清单，选定条目后由内核完成下载
 | `setup` | 否 | object | 装后步骤：装完依赖之后还要跑哪些 npm script，见下 |
 
 ::: warning `name` 是目录名，不是插件的声明名
-市场的寻址单位是**安装目录**（`plugins/<name>`），而插件宿主的寻址单位是
-`definePlugin({ name })` 声明的那个名字。两者常常不同 —— 一个索引条目取仓库名
+市场的寻址单位是**安装目录**（`plugins/<name>`），而插件宿主的寻址单位是插件名
+（`definePlugin` 的 `name`，省了取 package.json 的 `yunzai.name` / `name`）。两者常常不同 —— 一个索引条目取仓库名
 `relay-checkin-plugin`，而那个插件自己声明 `relay-checkin`。
 
 于是 `market/:name/*` 那几个端点收的**一律是目录名**。拿声明名去请求会得到一句
