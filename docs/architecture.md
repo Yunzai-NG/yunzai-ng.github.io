@@ -99,7 +99,7 @@ yunzai-ng/
 | `message/` | 消息段模型、长文本切分、发送目标 | 段模型与平台解耦，编解码位于适配器内 |
 | `store/` | KV（level / json / memory）与 SQLite | Redis 降级为可选驱动插件，接口一致即可替换 |
 | `config/` | Schema 生成 YAML、表单与校验 | 一份声明驱动三处，不存在"修改校验而遗漏表单"的情形 |
-| `logger/` | pino 风格分级与滚动 | 每插件一份 child logger，自动附带插件名 |
+| `logger/` | 分级、滚动与尾部缓冲 | 每插件一份 child logger，自动附带插件名；文件行为每行一个 JSON，无第三方依赖 |
 | `server/` | 共享 HTTP 服务器 | 同时承载面板、`ctx.route` 与适配器 webhook；令牌经请求头传递 |
 | `scheduler/` | cron 与固定间隔任务 | 重入保护（`overlap: "skip"`），单次执行超时后 abort |
 | `render/` | 渲染器注册表 | 按可用性选择，未探测到 Chromium 时回落而非报错 |
