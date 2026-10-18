@@ -25,7 +25,12 @@ await e.renderReply("note", { uid, resin: 160 })
 | `omitBackground` | false | 透明背景，仅 png 与 webp 支持 |
 | `viewport` | `{ scale: 配置项 render.scale }` | `width` 多数情况下仅影响媒体查询，元素宽度由 CSS 决定 |
 | `timeout` | 取自配置项 | 单次渲染超时 |
-| `multiPage` | 关闭 | `true` 表示使用默认页高，数字表示指定页高；分页时强制为 jpeg，返回图片段数组 |
+| `multiPage` | 关闭 | `true` 表示使用默认页高（配置项 `pageHeight`，缺省 4000），数字表示指定页高；分页时强制为 jpeg，返回图片段数组 |
+
+**分页只在插件显式传了 `multiPage` 时才发生**，渲染器不会因为图长而自动分页（本机实测 26000px 不分页也能完整截出）。
+页数按「元素高度 ÷ 页高」**四舍五入**，再均分高度：页高 4000 时 5900px 仍是一张，6000px 起切成两张各约 3000px。
+返回的图片段数组交给 `e.reply()` 时是**一条消息里带多张图**，不是合并转发 —— `autoForward` 只对超长文本切出的多条生效。
+要合并转发，请插件自行用 `e.bot.sendForward` 一类接口把各张图包成节点。
 
 ## 模板中可用的内容
 
@@ -82,12 +87,20 @@ await e.renderReply("note", { uid, resin: 160 })
 **浏览器**：`chromiumPath`（留空则自动探测）、`wsEndpoint`（填写后连接远端而不自行启动）、
 `args`、`userDataDir`（多实例不可共用同一目录）、`launchTimeout`（低配 Android
 设备上冷启动确实可能超过半分钟）、`restartAfter`（渲染指定次数后重启浏览器，默认 200；
-Chromium 长时间运行时内存持续增长，定期重启是代价最低的处置方式，0 表示从不重启）。
+Chromium 长时间运行时内存持续增长，定期重启是代价最低的处置方式，0 表示从不重启）、
+`prelaunch`（默认关）。
+
+**浏览器缺省在第一次出图时才启动**，那一张要多等一次冷启动（本机 1.5 秒，低配安卓数十秒）。
+开 `prelaunch` 后在框架启动完成（`app/ready`）后于后台启动 —— 不在 `setup` 里启动，故不与其他
+插件的加载抢 CPU、也不受 setup 超时约束。代价是浏览器常驻约 100MB 内存（本机实测私有内存 96MB），
+哪怕一整天都不出图。出图频繁、内存宽裕时开；低配机或很少出图时保持关闭。
 
 无「无头模式」开关：下载的是 `chrome-headless-shell`，该构建只能无头运行。
 
 **渲染**：`pages`（同时渲染的页面数，0 表示按内存与核数自动决定 —— **内核不限制并发，
-该项是唯一的限流点**）、`gotoTimeout`、`waitUntil`（缺省为 `networkidle2`，与旧框架一致）、
+该项是唯一的限流点**）、`gotoTimeout`、`waitUntil`（缺省 `auto`：load 之后再等 300ms 内没有新请求，
+最多 3 秒。旧框架的 `networkidle2` 在本地模板上实测每张 2.2 秒，`auto` 约 0.5 秒；脚本在 load 之后
+才插入的图片同样等得到。0.3.x 的配置文件里写着 `networkidle2` 的照旧沿用，要提速请在面板里改成「自动」）、
 `pageHeight`（长图分页的页高）、`templateCache`（编译缓存条数，默认 128）、
 `keepHtml`（排查模板问题时开启，中间产物位于临时目录 `render/<插件名>/` 下，
 同名模板相互覆盖，不会堆积）。

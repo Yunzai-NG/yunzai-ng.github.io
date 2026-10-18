@@ -90,7 +90,7 @@ bug」，别人的接口慢不是那件事，且它会污染每一份核对脚�
 | `index.js` | 浏览器入口：四枚组件与一个页签 |
 | `widgets/hitokoto.js` | 一言组件，含两枚图标按钮与三种状态 |
 | `widgets/calendar.js` | 日历组件，月历网格与剩余进度 |
-| `widgets/clock.js` | 时钟组件，每秒一拍且自己收表 |
+| `widgets/clock.js` | 时钟组件，对齐整秒走表且自己收表 |
 | `widgets/marquee.js` | 跑马灯组件，示范包自带样式表怎么用 |
 | `style.css` | 包自带的样式表，由 `webuiPanel.style` 声明 |
 | `tabs/hitokoto-tab.js` | 插件页页签 |

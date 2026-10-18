@@ -70,6 +70,12 @@
 **采样拆成六条路由而不是一条大的。** 没上板的组件一次请求都不发；合成一条的话，只想看 CPU 的人
 也要为进程表付一次 `si.processes()`。
 
+**采样的代价按平台各自压。** systeminformation 在 Windows 上每个调用起一个 PowerShell（0.5–0.8 秒），
+在 Linux 上读进程表要先跑 `ps` 再逐进程 `cat`。故网卡累计量在 Windows 上由一个 PowerShell 一次读完
+（si 每张网卡各起一个，实测快约 6 倍），Linux 上直读 `/proc/net/dev` 与 `/proc/<pid>/stat`，读不到
+时回落 si。电池 60 秒、温度 15 秒才重探一次，读不到的项 10 分钟内不再探。页面切到后台时不轮询；
+多个页签同时开着，同一端点 2 秒内共用一次采样。
+
 **温度、实时频率、每核占用与电池取不到时整项不出现。** 温度把 `0` 与 `-1` 都当读不到（无传感器的
 台式机、虚拟机与容器里给的就是这两个值，「0 ℃」会被读成凉得出奇）；电池按 `hasBattery` 判。每核
 占用与整机占用出自同一份 `os.cpus()` 采样，不多花代价，两者也必然自洽。
@@ -99,4 +105,6 @@
 | `src/probe.ts` | 整机 CPU / 内存 / 显卡与一次性的硬件型号 |
 | `src/rings.ts` | 双色环的几何与三段图例的比例（浏览器侧也用它的编译产物） |
 | `src/disks.ts` / `net.ts` / `processes.ts` / `sysinfo.ts` / `redis.ts` | 各类采样 |
+| `src/procfs.ts` | Linux 上直读 `/proc` 的进程表与网卡累计量 |
+| `src/throttle.ts` | 限频与并发合并 |
 | `package.json` 的 `webuiPanel` | node 侧入口路径与配置声明 |
