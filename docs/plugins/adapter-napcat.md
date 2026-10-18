@@ -54,7 +54,25 @@ http(s) URL（对端自行下载）、`base64://`（仅在前两项都不成立�
 **自身消息由账号配置 `ignoreSelf` 决定投不投，缺省不投。** `message_sent` 是「机器人自己发出的消息」，
 投进管线的话机器人会回复自己的回复，一条指令派生出无限条。内核 0.6.0 起不再替适配器过滤这类消息 ——
 「平台会不会回报自身消息」只有适配器知道 —— 故本插件 0.3.0 起要求 `core >=0.6.0`。关掉 `ignoreSelf`
-之前先确认插件能自行判断发送者。
+之前先确认插件能自行判断发送者。机器人自己戳出去的戳一戳也受它管：NapCat 照常上报那一下，写成
+「谁戳就戳谁」的插件收到它，就会自己跟自己来回戳下去。
+
+**戳一戳不走 `send_msg`。** NapCat 收到 poke 消息段会转成空，故消息里的 `seg.poke()` 被截下来改调
+`send_poke`。私聊里不指明被戳者时戳会话对方，群里必须指明：
+
+```ts
+ctx.on("notice", async e => {
+  // 通用通知的 noticeType 是 string，只比 "poke" 收窄不了联合类型，故再用 in 判一次
+  if (e.noticeType !== "poke" || !("targetId" in e) || e.targetId !== e.selfId) return
+  // 私聊里 seg.poke() 即戳回去；群里要写明戳谁
+  await e.reply(e.gid === undefined ? seg.poke() : seg.poke(e.uid))
+})
+```
+
+与文字同发时先戳，文字照常发出。`send_poke` 不回消息 id，只发戳一戳时结果的 `messageId` 为空串。
+`pokeType` 不起作用。收到的戳一戳会记一行 info 日志，例如 `[onebot11:10000][群 700000] 10001 戳了戳
+10000 的脑袋`：内核只给消息记「收到」，不记这一行的话，日志里只有机器人回应的那行「已发出」。私聊
+戳一戳报文里的 `user_id` 是会话对方，发起者在 `sender_id`，适配器已换算好，`e.uid` 就是发起者。
 
 **只给了 `file_id` 的媒体按需换成地址。** 群文件一类消息常只带一个 id，`bot.getFileUrl(id)` 调 OneBot 的
 `get_file`，优先取直链 `url`、否则退回本机路径，两者都没有就报错而不是返回空串。`getMessage` 取回的

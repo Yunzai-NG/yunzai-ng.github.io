@@ -81,7 +81,8 @@ await e.reply(seg.poke("10001"))                  // 戳一戳
 await e.reply(seg.markdown("**加粗**"))            // Markdown
 ```
 
-全表见[消息段全表](#消息段全表)。
+全表见[消息段全表](#消息段全表)。戳一戳要看平台是否声明了 `poke` 能力；NapCat 上私聊省略 uid 即戳会话
+对方，群里必须给 uid，见 [adapter-napcat](../plugins/adapter-napcat.md)。
 
 ## 合并转发
 
