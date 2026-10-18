@@ -42,6 +42,7 @@ module.exports = {
       stop_exit_codes: [0], // #关机 以退出码 0 退出，配了它 pm2 才不把关机当崩溃拉起
       restart_delay: 3000,
       max_memory_restart: "1G",
+      node_args: "--max-semi-space-size=4", // 自带守护会替子进程加这一项，交给 pm2 时要自己写，见下文
       env: { YZNG_HOME: "C:\\path\\to\\instance" }
     }
   ]
@@ -59,6 +60,8 @@ pm2 save                 # 记住进程列表，配合 pm2 startup 开机自启
 - **不会套两层守护。** `yzng start` 探测到 pm2 注入的 `pm_id` 会自动退回单进程，把守护交给 pm2，故 `args` 写 `start` 即可；想显式关掉自带那层也可写 `"start --no-supervise"`。
 - **`stop_exit_codes: [0]` 必配**，否则 `#关机` 关掉后会被 pm2 立刻拉起来（pm2 默认对任何退出码都重启）。`#重启` 走退出码 75，非零，照常触发重启。
 - **标准输入适配器（adapter-stdin）在 pm2 之下用不了** —— pm2 没有 TTY。托管前在面板里停用它。
+- **`node_args` 那一项省 8–17MB 常驻内存。** 它把 V8 新生代的上限从默认的 16MB 压到 4MB，heap 与吞吐不变，
+  见[性能基线 · 内存](/perf#内存)。自带守护 fork 内核时会自动带上；pm2 / systemd 下内核不经那一层，要自己写。
 - Windows 上会弹[浏览器黑框](#浏览器黑框-windows)。
 
 ## 用 systemd
@@ -74,6 +77,7 @@ Type=simple
 User=yunzai
 WorkingDirectory=/home/yunzai
 Environment=YZNG_HOME=/home/yunzai
+Environment=NODE_OPTIONS=--max-semi-space-size=4
 ExecStart=/usr/bin/yzng start --no-supervise
 Restart=always
 RestartPreventExitStatus=0

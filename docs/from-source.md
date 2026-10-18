@@ -32,8 +32,8 @@ pnpm run verify
 
 | 脚本 | 做什么 |
 |---|---|
-| `pnpm run build` | `tsc -b`，增量构建 |
-| `pnpm run watch` | 监听并增量构建 |
+| `pnpm run build` | `tsc -b` 增量构建，再由 `scripts/bundle.mjs` 把内核打包 |
+| `pnpm run watch` | 监听并增量构建（tsc 与打包各自监听） |
 | `pnpm run typecheck` | 只做类型检查，不产出文件 |
 | `pnpm run test` | vitest 跑一遍 |
 | `pnpm run test:watch` | vitest 监听模式 |
@@ -47,12 +47,17 @@ pnpm run verify
 | 包 | 作用 |
 |---|---|
 | `@yunzai-ng/types` | 纯类型，零依赖的叶子包 |
-| `@yunzai-ng/core` | 内核 |
+| `@yunzai-ng/core` | 内核。`dist/*.js` 是 esbuild 打包产物（`.d.ts` 仍由 tsc 出），见下文 |
 | `@yunzai-ng/jsx` | TSX 模板的运行时 |
 | `@yunzai-ng/cli` | `yzng` 命令 |
 
 四个包各自独立编号。仓库根 `package.json` 的 `version` 是**发布编号**（tag 上的那个号），
 跟随内核版本，与包版本号不必相同。
+
+内核发布产物是打包过的：内核自身连同 yaml、fastify、`@fastify/websocket`、`@fastify/send` 合成少数几个
+文件，启动时少读几百次盘。原生模块（better-sqlite3、classic-level）、undici、croner 不打包，照旧从
+`node_modules` 加载。打进来的依赖随内核发版才更新；其许可证汇总在 `dist/THIRD-PARTY-LICENSES.txt`。
+测试（vitest）跑的是源码，不受打包影响；要验产物用 `check:firstrun`。
 
 ## 构建产物过期时的症状
 
