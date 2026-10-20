@@ -17,7 +17,20 @@
  *          侧边栏与导航**逐项声明而非扫描目录**：文档的阅读顺序由内容决定，
  *          按文件名排序只能得到字母序。
  */
-import { defineConfig } from "vitepress"
+import { fileURLToPath } from "node:url"
+import { defineConfig, type DefaultTheme } from "vitepress"
+
+/**
+ * 侧栏的每个分组（含子组）都标成可折叠、默认折起
+ *
+ * 配合 theme/components/Sidebar.vue 换页时重建分组：只有含当前页的那一串展开，
+ * 其余一律收回。逐项手写 `collapsed: true` 容易漏，新加的组也就一直开着。
+ */
+function foldAll(items: DefaultTheme.SidebarItem[]): DefaultTheme.SidebarItem[] {
+  return items.map(item =>
+    item.items === undefined ? item : { ...item, collapsed: true, items: foldAll(item.items) }
+  )
+}
 
 export default defineConfig({
   lang: "zh-CN",
@@ -33,7 +46,8 @@ export default defineConfig({
 
   // 图标由 tools/brand.ps1 生成，几何全部由参数算出，不要手改这些 SVG
   head: [
-    ["link", { rel: "icon", type: "image/svg+xml", href: "/brand/icon-square.svg" }]
+    ["link", { rel: "icon", type: "image/svg+xml", href: "/brand/icon-square.svg" }],
+    ["meta", { name: "theme-color", content: "#0b0e16" }]
   ],
 
   themeConfig: {
@@ -42,38 +56,92 @@ export default defineConfig({
     logo: "/brand/icon-mark.svg",
 
     nav: [
-      { text: "快速开始", link: "/getting-started" },
-      { text: "插件开发", link: "/plugin-api" },
-      { text: "官方插件", link: "/official-plugins" },
-      { text: "插件商店", link: "/store" },
-      { text: "框架说明", link: "/architecture" },
-      { text: "从 Miao-Yunzai 迁移", link: "/migration" }
+      { text: "快速上手", link: "/getting-started", activeMatch: "^/(intro|getting-started|first-bot|deploy|faq)" },
+      { text: "插件商店", link: "/store", activeMatch: "^/(store|install-plugins)" },
+      { text: "开发者指南", link: "/plugin-api", activeMatch: "^/(plugin-api|plugin/|adapter|renderer|panel-plugin|custom-page|market|from-source)" },
+      { text: "官方插件", link: "/official-plugins", activeMatch: "^/(official-plugins|plugins/)" },
+      {
+        text: "参考",
+        items: [
+          { text: "CLI 命令", link: "/cli" },
+          { text: "配置项", link: "/config" },
+          { text: "框架说明", link: "/architecture" },
+          { text: "从 Miao-Yunzai 迁移", link: "/migration" },
+          { text: "性能基线", link: "/perf" }
+        ]
+      }
     ],
 
-    sidebar: [
+    /*
+     * 侧栏按读者的路径排：先用起来（上手 → 装插件），再写插件，最后是查阅用的
+     *
+     * 官方插件与参考放在最后：前者是逐个插件的说明，后者是逐项的命令与配置，
+     * 都是「用到时来查」，不该挡在新手的阅读路线中间。
+     */
+    sidebar: foldAll([
       {
-        text: "入门",
+        text: "快速上手",
         items: [
-          { text: "快速开始", link: "/getting-started" },
-          { text: "CLI 命令", link: "/cli" },
-          { text: "部署与长期运行", link: "/deploy" },
-          { text: "从源码构建", link: "/from-source" },
-          { text: "配置与面板", link: "/config" }
+          { text: "这是什么", link: "/intro" },
+          { text: "安装与启动", link: "/getting-started" },
+          { text: "接入 QQ", link: "/first-bot" },
+          { text: "让它一直跑着", link: "/deploy" },
+          { text: "常见问题", link: "/faq" }
+        ]
+      },
+      {
+        text: "插件商店",
+        items: [
+          { text: "浏览插件", link: "/store" },
+          { text: "安装与管理插件", link: "/install-plugins" }
         ]
       },
       {
         /*
-         * 官方插件收成一个可展开的分组，每个插件一页
-         *
-         * `collapsed: true` 使它默认折起：十来个插件平铺会让侧栏比其余各组加起来还长，
-         * 而多数人只需要读其中一两个。落地页（`/official-plugins`）留着 —— 它回答
-         * 「有哪些、装在哪个市场」，那是读任何单页之前要先知道的事。
+         * 开发者指南按学习顺序排：上手 → 发消息 → 命令 → 存储 → 协作，
+         * 再到接平台 / 出图、扩展面板、发布。`/plugin-api` 留在首位作为入口页（面板帮助页链的就是它）。
          */
+        text: "开发者指南",
+        items: [
+          {
+            text: "插件基础",
+            items: [
+              { text: "上手", link: "/plugin-api" },
+              { text: "发消息", link: "/plugin/message" },
+              { text: "命令与事件", link: "/plugin/command" },
+              { text: "配置与存储", link: "/plugin/storage" },
+              { text: "定时任务与协作", link: "/plugin/service" }
+            ]
+          },
+          {
+            text: "接平台与出图",
+            items: [
+              { text: "适配器开发", link: "/adapter" },
+              { text: "渲染与模板", link: "/renderer" }
+            ]
+          },
+          {
+            text: "扩展面板",
+            items: [
+              { text: "面板插件", link: "/panel-plugin" },
+              { text: "扩展页面", link: "/custom-page" }
+            ]
+          },
+          {
+            text: "发布",
+            items: [
+              { text: "测试与发布", link: "/plugin/publish" },
+              { text: "上架插件市场", link: "/market" },
+              { text: "从源码构建框架", link: "/from-source" }
+            ]
+          }
+        ]
+      },
+      {
+        // 落地页回答「有哪些、装在哪个市场」，那是读任何单页之前要先知道的事
         text: "官方插件",
-        collapsed: true,
         items: [
           { text: "一览与两个市场", link: "/official-plugins" },
-          { text: "插件商店", link: "/store" },
           { text: "webui（面板）", link: "/plugins/webui" },
           { text: "adapter-napcat（QQ）", link: "/plugins/adapter-napcat" },
           { text: "adapter-qqbot（QQ 官方）", link: "/plugins/adapter-qqbot" },
@@ -88,46 +156,16 @@ export default defineConfig({
         ]
       },
       {
-        /*
-         * 插件开发单列一组，且**不折起**
-         *
-         * 这一组决定别人愿不愿意为本框架写插件，故按「上手 → 发消息 → 命令 → 存储 →
-         * 协作 → 接平台/出图 → 发布」的学习顺序排，而不是按字母或文件名。
-         * `/plugin-api` 留在首位作为入口页（面板帮助页链的就是这个路径）。
-         *
-         * 适配器与渲染器也在这一组：写它们同样是 `definePlugin` 加一次
-         * `ctx.registerAdapter` / `ctx.registerRenderer`，与写命令是同一件事的不同侧面。
-         * 放进「扩展」组会与插件市场、扩展页面混在一起 —— 那两页讲的是插件写完之后的事。
-         */
-        text: "插件开发",
-        items: [
-          { text: "上手", link: "/plugin-api" },
-          { text: "发消息", link: "/plugin/message" },
-          { text: "命令与事件", link: "/plugin/command" },
-          { text: "配置与存储", link: "/plugin/storage" },
-          { text: "定时任务与协作", link: "/plugin/service" },
-          { text: "适配器开发", link: "/adapter" },
-          { text: "渲染与模板", link: "/renderer" },
-          { text: "测试与发布", link: "/plugin/publish" }
-        ]
-      },
-      {
-        text: "扩展面板",
-        items: [
-          { text: "面板插件", link: "/panel-plugin" },
-          { text: "扩展页面", link: "/custom-page" },
-          { text: "插件市场", link: "/market" }
-        ]
-      },
-      {
         text: "参考",
         items: [
+          { text: "CLI 命令", link: "/cli" },
+          { text: "配置项", link: "/config" },
           { text: "框架说明", link: "/architecture" },
           { text: "从 Miao-Yunzai 迁移", link: "/migration" },
           { text: "性能基线", link: "/perf" }
         ]
       }
-    ],
+    ]),
 
     socialLinks: [{ icon: "github", link: "https://github.com/Yunzai-NG" }],
 
@@ -150,6 +188,18 @@ export default defineConfig({
     footer: {
       message: "以 AGPL-3.0-or-later 许可发布",
       copyright: "Yunzai NG"
+    }
+  },
+
+  vite: {
+    resolve: {
+      // 默认主题的 Layout 以相对路径引入侧栏；只换掉这一处引用，见 theme/components/Sidebar.vue
+      alias: [
+        {
+          find: /^\.\/components\/VPSidebar\.vue$/,
+          replacement: fileURLToPath(new URL("./theme/components/Sidebar.vue", import.meta.url))
+        }
+      ]
     }
   }
 })

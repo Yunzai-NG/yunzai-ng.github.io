@@ -1,7 +1,12 @@
 # CLI 命令
 
-装好之后 `yzng` 位于 `node_modules/.bin/`，用 `pnpm exec yzng <命令>` 或 `npx yzng <命令>` 执行；
-全局安装则直接 `yzng <命令>`。从源码构建的仓库里写作 `node packages\cli\dist\bin.js <命令>`。
+::: warning 本页的 `yzng` 要写成 `npx yzng`
+按[安装与启动](/getting-started)装在实例目录里时，`yzng` 位于 `node_modules/.bin/`，不在系统 PATH 上，直接敲会报「无法将“yzng”项识别为 cmdlet」/「command not found」。在实例目录里写成 **`npx yzng <命令>`**（pnpm 用户写 `pnpm exec yzng`）。为简洁起见，下文的示例省略了 `npx`。
+
+- Windows PowerShell 报「禁止运行脚本」时改用 `npx.cmd`，或执行一次 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`。
+- npx 问「Need to install the following packages: yzng」说明不在实例目录里，**按 n 拒绝**再 `cd` 回去。
+- 全局安装（`npm install -g @yunzai-ng/cli`）后可直接 `yzng`；从源码构建的仓库里写作 `node packages\cli\dist\bin.js <命令>`。
+:::
 
 不带命令、`yzng help`、`yzng -h` 都输出帮助并以 0 退出。命令名写错时输出「未知命令」并以 1 退出。
 

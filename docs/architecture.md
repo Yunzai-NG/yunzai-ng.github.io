@@ -54,7 +54,7 @@ Yunzai NG 将该方向纠正，代价是与旧插件干净断裂（详见[迁移
 反例判定为真实依赖。门禁一旦出现误报，其后便不再具备可信度。
 
 插件之间不经由 import 协作（那样 A 必须知道 B 安装在哪个目录），而应使用
-`ctx.provide` / `ctx.inject`，见[插件开发](plugin-api.md#插件间的协作)。
+`ctx.provide` / `ctx.inject`，见[插件间协作](plugin/service.md#插件间协作)。
 
 ## 仓库结构
 

@@ -5,12 +5,14 @@
 
 ## 五分钟跑通一个
 
+在实例目录里（还没有实例的话先走一遍[安装与启动](/getting-started)）：
+
 ```powershell
-yzng plugin new hello
-yzng dev
+npx yzng plugin new hello
+npx yzng dev
 ```
 
-然后向机器人发 `#ping`。生成的 `plugins/hello/index.js` 长这样：
+然后向机器人发 `#ping`（没接 QQ 的话装 [adapter-stdin](/plugins/adapter-stdin)，在终端里发）。生成的 `plugins/hello/index.js` 长这样：
 
 ```js
 import { definePlugin, s } from "@yunzai-ng/core"

@@ -18,7 +18,7 @@ title: 部署与长期运行
 
 从 CLI 0.6.0 起 `yzng start` 自带进程守护，裸起也能 `#重启` / `#关机`，无须外挂。细节见 [CLI · 自带进程守护](/cli#自带进程守护)。
 
-开机自启只需把 `yzng start` 交给系统的启动项 / 计划任务即可。但那样启动它就**没有控制台**了，Windows 上出图会弹黑框 —— 见[下文](#浏览器黑框-windows)。
+开机自启只需把 `npx yzng start`（工作目录设为实例目录）交给系统的启动项 / 计划任务即可。但那样启动它就**没有控制台**了，Windows 上出图会弹黑框 —— 见[下文](#浏览器黑框-windows)。
 
 ## 用 pm2
 
@@ -78,7 +78,7 @@ User=yunzai
 WorkingDirectory=/home/yunzai
 Environment=YZNG_HOME=/home/yunzai
 Environment=NODE_OPTIONS=--max-semi-space-size=4
-ExecStart=/usr/bin/yzng start --no-supervise
+ExecStart=/usr/bin/node /home/yunzai/node_modules/@yunzai-ng/cli/dist/bin.js start --no-supervise
 Restart=always
 RestartPreventExitStatus=0
 
@@ -93,6 +93,7 @@ journalctl -u yunzai-ng -f
 
 要点：
 
+- **`ExecStart` 写绝对路径**：systemd 不读你的 shell 配置，找不到 nvm 装的 node，也没有 `npx`。`which node` 查出 node 的位置替换 `/usr/bin/node`，后半段是实例目录下的 CLI 入口。
 - **`--no-supervise`**：systemd 就是守护，不必再套自带那层。
 - **`Restart=always` + `RestartPreventExitStatus=0`**：`#重启` 退 75（非零）会被拉起；`#关机` 退 0，被这一行拦住不再拉起。若用 `Restart=on-failure` 则天然不拉零退出，可不写这一行。
 

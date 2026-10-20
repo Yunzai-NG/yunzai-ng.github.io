@@ -171,7 +171,7 @@ if (api === undefined) return e.reply("请先安装 mhy-game 插件")
 ```
 
 以相对路径 import 意味着插件必须知道对方安装在哪个目录，目录名一经改动即失效。
-详见[插件间的协作](plugin-api.md#插件间的协作)。
+详见[插件间协作](plugin/service.md#插件间协作)。
 
 ## 米游社相关插件
 

@@ -1,0 +1,355 @@
+/*
+ * 文档站主题：金色（品牌，取自 icon-mark 的两档金）+ 青色（科技感的辅色）
+ *
+ * 只改 VitePress 的令牌与少数选择器，不替换默认布局 —— 导航、侧栏、搜索的交互照旧。
+ * 深色是主场：页底换成偏蓝的深夜色，金与青在上面才「发光」；浅色取暖白，金色压到 #7a5c1f
+ * 一档（品牌说明里写明：金色在白底上对比度只有 1.9:1）。
+ */
+
+:root {
+  --yz-gold-1: #7a5c1f;
+  --yz-gold-2: #9a7429;
+  --yz-gold-3: #b88d3a;
+  --yz-gold-soft: rgb(184 141 58 / 14%);
+  --yz-cyan: #0e9fb5;
+  --yz-cyan-soft: rgb(14 159 181 / 12%);
+  --yz-violet: #6d5bd0;
+  --yz-glow: rgb(184 141 58 / 22%);
+  --yz-grid: rgb(60 40 10 / 7%);
+  --yz-radius: 14px;
+
+  --vp-c-brand-1: var(--yz-gold-1);
+  --vp-c-brand-2: var(--yz-gold-2);
+  --vp-c-brand-3: var(--yz-gold-3);
+  --vp-c-brand-soft: var(--yz-gold-soft);
+
+  --vp-c-bg: #fdfcf9;
+  --vp-c-bg-alt: #f6f3ec;
+  --vp-c-bg-soft: #f3efe6;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-divider: #e8e2d4;
+  --vp-c-gutter: #ece6d8;
+
+  --vp-c-tip-1: var(--yz-cyan);
+  --vp-c-tip-2: #0b8597;
+  --vp-c-tip-3: #0a6f7e;
+  --vp-c-tip-soft: var(--yz-cyan-soft);
+
+  --vp-button-brand-bg: var(--yz-gold-2);
+  --vp-button-brand-hover-bg: var(--yz-gold-1);
+  --vp-button-brand-active-bg: var(--yz-gold-1);
+  --vp-button-brand-text: #fffaf0;
+  --vp-button-brand-hover-text: #fffaf0;
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #b88d3a 10%, #e0b862 45%, #0e9fb5 95%);
+
+  --vp-font-family-mono: "JetBrains Mono", "Cascadia Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --vp-layout-max-width: 1440px;
+}
+
+.dark {
+  --yz-gold-1: #f0d8a8;
+  --yz-gold-2: #d3bc8e;
+  --yz-gold-3: #b89c66;
+  --yz-gold-soft: rgb(240 216 168 / 12%);
+  --yz-cyan: #4fd6e8;
+  --yz-cyan-soft: rgb(79 214 232 / 12%);
+  --yz-violet: #a594ff;
+  --yz-glow: rgb(240 216 168 / 20%);
+  --yz-grid: rgb(200 220 255 / 6%);
+
+  --vp-c-bg: #0b0e16;
+  --vp-c-bg-alt: #080a11;
+  --vp-c-bg-soft: #131826;
+  --vp-c-bg-elv: #141a29;
+  --vp-c-divider: #1f2638;
+  --vp-c-gutter: #070910;
+
+  --vp-c-tip-1: var(--yz-cyan);
+  --vp-c-tip-2: #7be3f0;
+  --vp-c-tip-3: #a6eef6;
+
+  --vp-button-brand-bg: var(--yz-gold-2);
+  --vp-button-brand-hover-bg: var(--yz-gold-1);
+  --vp-button-brand-active-bg: var(--yz-gold-3);
+  --vp-button-brand-text: #1a1408;
+  --vp-button-brand-hover-text: #1a1408;
+}
+
+/* ─────────────── 滚动条：页面、侧栏、目录、代码块与表格统一成细的金色滑块 ─────────────── */
+
+:root {
+  --yz-sb-thumb: rgb(122 92 31 / 28%);
+  --yz-sb-thumb-hover: rgb(122 92 31 / 55%);
+}
+
+.dark {
+  --yz-sb-thumb: rgb(240 216 168 / 22%);
+  --yz-sb-thumb-hover: rgb(240 216 168 / 50%);
+}
+
+/* Firefox 只认这两项；Chromium 121 起两套都认且以这两项为准，故 webkit 那套放进 @supports 里只给 Safari 与旧版 */
+html,
+.VPSidebar,
+.VPDocAsideOutline,
+.vp-doc div[class*="language-"] pre,
+.vp-doc table,
+.term-body,
+.code-body pre {
+  scrollbar-width: thin;
+  scrollbar-color: var(--yz-sb-thumb) transparent;
+}
+
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: var(--yz-sb-thumb) padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--yz-sb-thumb-hover) padding-box;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+.VPSidebar:hover,
+.vp-doc div[class*="language-"] pre:hover,
+.vp-doc table:hover,
+.term-body:hover,
+.code-body pre:hover {
+  scrollbar-color: var(--yz-sb-thumb-hover) transparent;
+}
+
+/* ─────────────── 页头：无侧栏的页面（首页滚动后）半透明毛玻璃，下沿一道金青渐变细线 ─────────────── */
+
+@media (min-width: 960px) {
+  .VPNavBar:not(.has-sidebar):not(.home.top) {
+    background-color: color-mix(in srgb, var(--vp-c-bg) 78%, transparent) !important;
+    backdrop-filter: saturate(160%) blur(14px);
+    -webkit-backdrop-filter: saturate(160%) blur(14px);
+  }
+
+  .VPNavBar:not(.home.top) .divider-line {
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--yz-gold-3) 45%, transparent) 30%, color-mix(in srgb, var(--yz-cyan) 45%, transparent) 70%, transparent) !important;
+  }
+}
+
+.VPNavBarTitle .title {
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.VPNavBarTitle .logo {
+  color: var(--yz-gold-2);
+}
+
+/* ─────────────── 侧栏：当前项左侧一道发光竖条 ─────────────── */
+
+.VPSidebar {
+  background: var(--vp-c-bg-alt);
+}
+
+.VPSidebarItem.level-0 > .item > .text {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vp-c-text-2);
+}
+
+.VPSidebarItem.level-0 > .item > h2.text,
+.VPSidebarItem.level-0 > .item > .text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.VPSidebarItem.level-0 > .item > .text::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--yz-gold-2), var(--yz-cyan));
+  flex: none;
+}
+
+.VPSidebarItem.is-active > .item .link > .text {
+  font-weight: 700;
+}
+
+.VPSidebarItem.is-active > .item > .indicator {
+  background: linear-gradient(180deg, var(--yz-gold-2), var(--yz-cyan));
+  box-shadow: 0 0 10px var(--yz-glow);
+  width: 3px;
+  border-radius: 3px;
+}
+
+/* ─────────────── 正文 ─────────────── */
+
+.vp-doc h1 {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: linear-gradient(110deg, var(--vp-c-text-1) 40%, var(--yz-gold-2) 75%, var(--yz-cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.vp-doc h2 {
+  border-top: none;
+  padding-top: 8px;
+  margin-top: 44px;
+  position: relative;
+}
+
+.vp-doc h2::before {
+  content: "";
+  display: block;
+  width: 36px;
+  height: 3px;
+  margin-bottom: 14px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--yz-gold-2), var(--yz-cyan));
+}
+
+.vp-doc a {
+  text-underline-offset: 3px;
+}
+
+.vp-doc table {
+  display: table;
+  width: 100%;
+  border-radius: var(--yz-radius);
+  overflow: hidden;
+  border: 1px solid var(--vp-c-divider);
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.vp-doc tr {
+  border-top: none;
+}
+
+.vp-doc th,
+.vp-doc td {
+  border: none;
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc tr:last-child td {
+  border-bottom: none;
+}
+
+.vp-doc th {
+  background: var(--vp-c-bg-soft);
+}
+
+/* 窄屏：表格整体横滑，不挤成竖条 */
+@media (max-width: 640px) {
+  .vp-doc table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+.vp-doc div[class*="language-"] {
+  border-radius: var(--yz-radius);
+  border: 1px solid var(--vp-c-divider);
+}
+
+.dark .vp-doc div[class*="language-"] {
+  background: #0f1420;
+}
+
+.vp-doc .custom-block {
+  border-radius: var(--yz-radius);
+  border-left-width: 4px;
+}
+
+.vp-doc .custom-block.tip {
+  border-color: var(--yz-cyan);
+}
+
+.vp-doc .custom-block.warning {
+  border-left-color: #d9a12b;
+}
+
+.vp-doc .custom-block.danger {
+  border-left-color: #e5484d;
+}
+
+.vp-doc img {
+  border-radius: 10px;
+}
+
+/* 等宽字体里的连字会把 => 画成 ⇒，照抄的人会以为要打那个符号 */
+code,
+pre,
+kbd {
+  font-variant-ligatures: none;
+}
+
+::selection {
+  background: var(--yz-gold-soft);
+}
+
+/* ─────────────── 步骤条：<div class="steps"> 里的每个 h3 是一步 ─────────────── */
+
+.vp-doc .steps {
+  counter-reset: step;
+  margin: 24px 0;
+  padding-left: 22px;
+  border-left: 2px dashed var(--vp-c-divider);
+}
+
+.vp-doc .steps > h3 {
+  counter-increment: step;
+  position: relative;
+  margin-top: 36px;
+}
+
+.vp-doc .steps > h3:first-child {
+  margin-top: 8px;
+}
+
+.vp-doc .steps > h3::before {
+  content: counter(step);
+  position: absolute;
+  left: -40px;
+  top: -2px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--yz-gold-2), var(--yz-cyan));
+  color: var(--vp-c-bg);
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: 0 0 0 5px var(--vp-c-bg), 0 0 18px var(--yz-glow);
+}
+
+/* 尊重「减少动态效果」：全站动画一律停下 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
