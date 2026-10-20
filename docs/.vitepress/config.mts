@@ -17,8 +17,28 @@
  *          侧边栏与导航**逐项声明而非扫描目录**：文档的阅读顺序由内容决定，
  *          按文件名排序只能得到字母序。
  */
+import { readFileSync } from "node:fs"
+import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { defineConfig, type DefaultTheme } from "vitepress"
+
+/**
+ * 正文字数：汉字逐个计，英文与数字按词计
+ *
+ * 先去掉 frontmatter、页内的 <script> / <style>、HTML 标签与 markdown 记号，
+ * 否则组件的示例数据与链接地址会被算进去。代码块保留 —— 那也是要读的。
+ */
+function countWords(source: string): number {
+  const text = source
+    .replace(/^---[\s\S]*?\n---/, "")
+    .replace(/<(script|style)\b[\s\S]*?<\/\1>/g, "")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\]\([^)]*\)/g, "]")
+    .replace(/[#>*_`|~[\]-]/g, " ")
+  const han = text.match(/[㐀-鿿豈-﫿]/g)?.length ?? 0
+  const latin = text.replace(/[㐀-鿿豈-﫿]/g, " ").match(/[A-Za-z0-9]+(?:[.'][A-Za-z0-9]+)*/g)?.length ?? 0
+  return han + latin
+}
 
 /**
  * 侧栏的每个分组（含子组）都标成可折叠、默认折起
@@ -44,16 +64,38 @@ export default defineConfig({
   // 而在这里是一条构建错误
   ignoreDeadLinks: false,
 
-  // 图标由 tools/brand.ps1 生成，几何全部由参数算出，不要手改这些 SVG
+  // 字数在构建期算好，交给 DocMeta 显示；首页等无正文的页不算
+  transformPageData(pageData, { siteConfig }) {
+    if ((pageData.frontmatter.layout ?? "doc") !== "doc") return
+    const source = readFileSync(join(siteConfig.srcDir, pageData.relativePath), "utf8")
+    pageData.frontmatter.wordCount = countWords(source)
+  },
+
+  markdown: {
+    // 每页第一个 h1 之后插一行「更新日期 · 字数 · 阅读时间」
+    config(md) {
+      md.core.ruler.push("yz-doc-meta", state => {
+        const i = state.tokens.findIndex(t => t.type === "heading_close" && t.tag === "h1")
+        if (i < 0) return
+        const token = new state.Token("html_block", "", 0)
+        token.content = "<DocMeta />\n"
+        state.tokens.splice(i + 1, 0, token)
+      })
+    }
+  },
+
+  // 图标与字标见 public/brand/README.md
   head: [
-    ["link", { rel: "icon", type: "image/svg+xml", href: "/brand/icon-square.svg" }],
+    ["link", { rel: "icon", type: "image/svg+xml", href: "/brand/logo-rounded.svg" }],
+    ["link", { rel: "icon", type: "image/png", sizes: "1024x1024", href: "/brand/logo-rounded.png" }],
+    ["link", { rel: "apple-touch-icon", href: "/brand/logo-rounded.png" }],
     ["meta", { name: "theme-color", content: "#0b0e16" }]
   ],
 
   themeConfig: {
-    // 站点标题旁的标记用 mark：它不画背景，`currentColor` 随深浅主题走，
-    // 带底色的方形版压在浅色页头上会是一个突兀的深色块
-    logo: "/brand/icon-mark.svg",
+    // 页头直接放「图标 + YUNZAI NG」整张字标，故关掉文字标题；深浅两版只差字色
+    logo: { light: "/brand/logo-lockup.svg", dark: "/brand/logo-lockup-ondark.svg", alt: "Yunzai NG" },
+    siteTitle: false,
 
     nav: [
       { text: "快速上手", link: "/getting-started", activeMatch: "^/(intro|getting-started|first-bot|deploy|faq)" },
@@ -169,7 +211,29 @@ export default defineConfig({
 
     socialLinks: [{ icon: "github", link: "https://github.com/Yunzai-NG" }],
 
-    search: { provider: "local" },
+    search: {
+      provider: "local",
+      options: {
+        translations: {
+          button: { buttonText: "搜索文档", buttonAriaLabel: "搜索文档" },
+          modal: {
+            displayDetails: "显示详细列表",
+            resetButtonTitle: "清空查询",
+            backButtonTitle: "关闭搜索",
+            noResultsText: "没有找到相关结果",
+            footer: {
+              selectText: "选择",
+              selectKeyAriaLabel: "回车",
+              navigateText: "切换",
+              navigateUpKeyAriaLabel: "上方向键",
+              navigateDownKeyAriaLabel: "下方向键",
+              closeText: "关闭",
+              closeKeyAriaLabel: "Esc"
+            }
+          }
+        }
+      }
+    },
 
     outline: { level: [2, 3], label: "本页目录" },
 
@@ -198,7 +262,9 @@ export default defineConfig({
         {
           find: /^\.\/components\/VPSidebar\.vue$/,
           replacement: fileURLToPath(new URL("./theme/components/Sidebar.vue", import.meta.url))
-        }
+        },
+        // 替换版侧栏要引用默认主题的内部组件，见 Sidebar.vue 与 env.d.ts
+        { find: /^@vp-theme\//, replacement: "vitepress/dist/client/theme-default/components/" }
       ]
     }
   }

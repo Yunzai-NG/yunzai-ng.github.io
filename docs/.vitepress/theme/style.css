@@ -1,5 +1,5 @@
 /*
- * 文档站主题：金色（品牌，取自 icon-mark 的两档金）+ 青色（科技感的辅色）
+ * 文档站主题：金色（主色）+ 青色（科技感的辅色）
  *
  * 只改 VitePress 的令牌与少数选择器，不替换默认布局 —— 导航、侧栏、搜索的交互照旧。
  * 深色是主场：页底换成偏蓝的深夜色，金与青在上面才「发光」；浅色取暖白，金色压到 #7a5c1f
@@ -153,8 +153,31 @@ html,
   letter-spacing: 0.2px;
 }
 
+/* 字标是横版整图，按高度定尺寸；默认的 24px 下字母太小 */
 .VPNavBarTitle .logo {
-  color: var(--yz-gold-2);
+  height: 42px;
+  width: auto;
+}
+
+@media (max-width: 480px) {
+  .VPNavBarTitle .logo {
+    height: 36px;
+  }
+}
+
+/*
+ * 含当前页的分组在首屏就展开
+ *
+ * 各组都声明了 collapsed，服务端渲染出来全是折起的，脚本跑起来才把当前那组打开 ——
+ * 首屏会闪一下。has-active 在服务端就已算好，据它先把这一组撑开。只管脚本接管之前：
+ * Sidebar.vue 挂载后给根元素打上 data-sidebar-ready，此后手动折起当前组才折得起来。
+ */
+:root:not([data-sidebar-ready]) .VPSidebarItem.collapsed.has-active > .items {
+  display: block;
+}
+
+:root:not([data-sidebar-ready]) .VPSidebarItem.collapsed.has-active > .item .caret-icon {
+  transform: rotate(90deg);
 }
 
 /* ─────────────── 侧栏：当前项左侧一道发光竖条 ─────────────── */

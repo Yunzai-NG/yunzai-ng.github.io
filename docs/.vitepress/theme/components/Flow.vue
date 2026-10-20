@@ -195,11 +195,30 @@ figcaption {
     flex-direction: column;
   }
 
+  /*
+   * 竖排时文字、连线与光点落在同一条中轴上；图标钉在左侧
+   *
+   * 图标若跟着文字一起居中，各节点文字长短不一，图标便左右错开、排不成一列。
+   */
   .node {
+    position: relative;
     flex-direction: row;
-    gap: 14px;
-    padding: 12px 14px;
-    text-align: left;
+    justify-content: center;
+    min-height: 64px;
+    padding: 12px 64px;
+  }
+
+  .badge {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .txt {
+    align-items: center;
+    text-align: center;
+    min-width: 0;
   }
 
   .badge {
@@ -211,8 +230,7 @@ figcaption {
     flex: 0 0 22px;
     width: 2px;
     height: auto;
-    margin-left: 34px;
-    align-self: flex-start;
+    align-self: center;
     background: repeating-linear-gradient(180deg, var(--vp-c-divider) 0 5px, transparent 5px 9px);
   }
 

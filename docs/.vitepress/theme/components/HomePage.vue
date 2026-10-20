@@ -189,17 +189,6 @@ onUnmounted(() => {
         <div class="visual" aria-hidden="true">
           <div class="halo" />
           <svg class="rings" viewBox="0 0 560 560">
-            <defs>
-              <linearGradient id="yz-g-gold" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#f6e2b6" />
-                <stop offset="0.55" stop-color="#d3bc8e" />
-                <stop offset="1" stop-color="#4fd6e8" />
-              </linearGradient>
-              <radialGradient id="yz-g-core" cx="0.5" cy="0.38" r="0.7">
-                <stop offset="0" stop-color="#26324a" />
-                <stop offset="1" stop-color="#0a0e17" />
-              </radialGradient>
-            </defs>
             <circle class="ring r0" cx="280" cy="280" r="250" />
             <g class="spin slow">
               <circle class="ring r1" cx="280" cy="280" r="210" />
@@ -221,18 +210,12 @@ onUnmounted(() => {
                 <animateMotion dur="9s" begin="-4s" repeatCount="indefinite" path="M490 280 a210 210 0 1 1 0 0.1" />
               </circle>
             </template>
-            <g class="core">
-              <polygon class="hex-glow" points="280,186 361.4,233 361.4,327 280,374 198.6,327 198.6,233" />
-              <polygon class="hex" points="280,192 356.2,236 356.2,324 280,368 203.8,324 203.8,236" />
-              <!-- 品牌标记 icon-mark.svg 的几何，以 (32,35) 为心放大 2.3 倍 -->
-              <path class="mark" d="M 238.6 227.1 L 268.5 266.8 L 291.5 266.8 L 321.4 227.1 L 293.8 227.1 L 280 245.4 L 266.2 227.1 Z" />
-              <rect class="mark" x="268.5" y="279.4" width="23" height="53.5" rx="4.6" />
-              <rect class="scan" x="226" y="271.1" width="108" height="4" rx="2" />
-            </g>
           </svg>
+          <!-- 品牌图形放在内环里，宽高比与 logo-mark.svg 的画幅一致（302:284） -->
+          <img class="hero-mark" src="/brand/logo-mark.svg" alt="" width="302" height="284" />
           <div class="orbit">
             <span v-for="(c, i) in ORBIT" :key="c.label" class="spoke" :style="{ '--a': `${i * 60}deg`, '--d': `${i * -0.6}s` }" />
-            <span v-for="(c, i) in ORBIT" :key="c.icon" class="chip" :style="{ '--a': `${i * 60}deg`, '--d': `${i * 0.4}s` }">
+            <span v-for="(c, i) in ORBIT" :key="c.icon" class="chip" :style="{ '--a': `${i * 60}deg`, '--d': `${i * -0.4}s` }">
               <span class="chip-in"><Icon :name="c.icon" :size="15" />{{ c.label }}</span>
             </span>
           </div>
@@ -796,39 +779,25 @@ onUnmounted(() => {
   to { transform: rotate(360deg); }
 }
 
-.yz-home .hex {
-  fill: url(#yz-g-core);
-  stroke: url(#yz-g-gold);
-  stroke-width: 2;
+/*
+ * 品牌图形：占内环（直径 300/560）略多一点，上下轻轻浮动
+ *
+ * 类名别叫 core：本文件的样式不带 scoped，Flow 里 tone="core" 的节点也挂着 core，会被一并抓走。
+ */
+.yz-home .visual .hero-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46%;
+  height: auto;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 18px 30px rgb(0 0 0 / 28%));
+  animation: yz-float 6s ease-in-out infinite;
 }
 
-.yz-home .hex-glow {
-  fill: none;
-  stroke: url(#yz-g-gold);
-  stroke-width: 10;
-  stroke-linejoin: round;
-  opacity: 0.18;
-  animation: yz-glow 3.2s ease-in-out infinite;
-}
-
-@keyframes yz-glow {
-  50% { opacity: 0.42; }
-}
-
-.yz-home .mark {
-  fill: url(#yz-g-gold);
-}
-
-.yz-home .scan {
-  fill: #4fd6e8;
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
-  animation: yz-scan 2.4s ease-in-out infinite;
-}
-
-@keyframes yz-scan {
-  0%, 100% { opacity: 0.25; transform: scaleX(0.35); }
-  50% { opacity: 1; transform: scaleX(1); }
+@keyframes yz-float {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, calc(-50% - 8px)); }
 }
 
 .yz-home .packet {
@@ -885,6 +854,8 @@ onUnmounted(() => {
   top: 50%;
   width: 0;
   height: 0;
+  /* 与关键帧起点相同：动画接管之前（含关掉动画时）标签已经在环上 */
+  transform: rotate(var(--a)) translateY(-37.5cqw) rotate(calc(var(--a) * -1));
   animation: yz-chip 60s linear infinite;
 }
 
@@ -911,6 +882,13 @@ onUnmounted(() => {
   box-shadow: 0 8px 24px -12px rgb(0 0 0 / 40%), 0 0 0 1px rgb(255 255 255 / 4%) inset;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  /*
+   * 居中的位移写在静态样式里，延迟取负值
+   *
+   * 居中只靠 yz-bob 的关键帧时，延迟期间标签没有这层位移，左上角钉在环上、整块偏到右下，
+   * 等各自的动画开始才跳回去；负延迟让每个标签一上来就处在浮动周期的中途。
+   */
+  transform: translate(-50%, -50%);
   animation: yz-bob 4s ease-in-out infinite;
   animation-delay: var(--d);
 }
@@ -1648,6 +1626,7 @@ onUnmounted(() => {
   .yz-home .rot-track {
     animation: none;
   }
+
 
   .yz-home .show-desk {
     transform: none;

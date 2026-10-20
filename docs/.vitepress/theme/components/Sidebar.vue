@@ -11,9 +11,11 @@
  * 原版的滚动锁用 @vueuse/core，pnpm 下本目录解析不到它，故手写。
  */
 import { inBrowser, useRoute } from "vitepress"
-import { onUnmounted, ref, watch } from "vue"
+import { onMounted, onUnmounted, ref, watch } from "vue"
 import { useSidebar } from "vitepress/dist/client/theme-default/composables/sidebar.js"
-import VPSidebarGroup from "vitepress/dist/client/theme-default/components/VPSidebarGroup.vue"
+// 经别名引入（见 config.mts）：直接写包内路径时，类型检查会顺着它查进默认主题的内部组件，
+// 那里的 .js 模块不带类型声明，报一串与本站无关的错
+import VPSidebarGroup from "@vp-theme/VPSidebarGroup.vue"
 
 const { sidebarGroups, hasSidebar } = useSidebar()
 const route = useRoute()
@@ -38,6 +40,9 @@ watch(
 )
 
 onUnmounted(() => lock(false))
+
+// 交给 style.css：此后分组的展开与折起全由组件状态决定，不再按 has-active 强撑
+onMounted(() => document.documentElement.setAttribute("data-sidebar-ready", ""))
 
 const key = ref(0)
 
