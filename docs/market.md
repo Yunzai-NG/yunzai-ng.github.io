@@ -29,18 +29,18 @@ JSON 索引文件读取可用插件清单，选定条目后由内核完成下载
 {
   "plugins": [
     {
-      "name": "adapter-napcat",
+      "name": "adapter-onebot",
       "title": "NapCat 适配器",
       "description": "以 OneBot v11 协议接入 NapCat，支持正向与反向 WebSocket、HTTP 与 HTTP POST 四种网络模式。",
       "author": "yunzai-ng",
       "version": "1.0.0",
-      "homepage": "https://github.com/yunzai-ng/adapter-napcat",
+      "homepage": "https://github.com/yunzai-ng/adapter-onebot",
       "minCore": "1.0.0",
       "tags": ["适配器", "QQ"],
       "official": true,
       "install": {
         "type": "git",
-        "url": "https://github.com/yunzai-ng/adapter-napcat",
+        "url": "https://github.com/yunzai-ng/adapter-onebot",
         "branch": "main"
       }
     }

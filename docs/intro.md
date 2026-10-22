@@ -43,7 +43,7 @@ const PATHS = [
 | 想要的能力 | 由哪个插件提供 | 在哪装 |
 |---|---|---|
 | 网页管理面板 | [webui](/plugins/webui) | 初始化时直接回车就装 |
-| 接入 QQ | 协议端（如 NapCat）+ 适配器 [adapter-napcat](/plugins/adapter-napcat)，或官方机器人 + [adapter-qqbot](/plugins/adapter-qqbot)，见[接入 QQ](/first-bot) | 插件市场 |
+| 接入 QQ | 协议端（如 NapCat）+ 适配器 [adapter-onebot](/plugins/adapter-onebot)，或官方机器人 + [adapter-qqbot](/plugins/adapter-qqbot)，见[接入 QQ](/first-bot) | 插件市场 |
 | 把结果画成图片 | [renderer-puppeteer](/plugins/renderer-puppeteer) | 插件市场 |
 | 原神 / 星铁 / 绝区零的体力、深渊等查询 | [mhy-game](/plugins/mhy-game) | 插件市场 |
 | 在 QQ 里重启、更新机器人 | [steward](/plugins/steward) | 插件市场 |

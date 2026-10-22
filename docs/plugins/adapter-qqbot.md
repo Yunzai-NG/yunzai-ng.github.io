@@ -2,9 +2,9 @@
 
 经 QQ 开放平台 API v2 接入 **QQ 官方机器人**，覆盖群聊、C2C 私聊、频道、频道私信四种场景。
 
-::: tip 与 adapter-napcat 的区别
+::: tip 与 adapter-onebot 的区别
 两者都是 QQ，但走的是不同的路：本插件接的是 QQ **官方**开放平台的机器人（要在
-[q.qq.com](https://q.qq.com) 注册应用、拿 AppID），[adapter-napcat](adapter-napcat.md)
+[q.qq.com](https://q.qq.com) 注册应用、拿 AppID），[adapter-onebot](adapter-onebot.md)
 接的是本机的 NapCat（用你自己的 QQ 号）。官方机器人有平台的内容与频率限制，NapCat 没有；
 但官方机器人不需要挂一个客户端。
 :::

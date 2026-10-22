@@ -82,7 +82,7 @@ await e.reply(seg.markdown("**加粗**"))            // Markdown
 ```
 
 全表见[消息段全表](#消息段全表)。戳一戳要看平台是否声明了 `poke` 能力；NapCat 上私聊省略 uid 即戳会话
-对方，群里必须给 uid，见 [adapter-napcat](../plugins/adapter-napcat.md)。
+对方，群里必须给 uid，见 [adapter-onebot](../plugins/adapter-onebot.md)。
 
 ## 合并转发
 
@@ -247,7 +247,7 @@ if (e.bot.caps.has("recall")) await e.bot.recallMessage(id)
 
 ::: warning 段类型也有平台差异
 适配器收到不支持的段时会降级或丢弃 —— 比如 QQ 官方机器人把频道场景的视频降级为文本占位。
-拿不准就查对应适配器那一页，如 [adapter-napcat](../plugins/adapter-napcat.md)、
+拿不准就查对应适配器那一页，如 [adapter-onebot](../plugins/adapter-onebot.md)、
 [adapter-qqbot](../plugins/adapter-qqbot.md)。
 :::
 

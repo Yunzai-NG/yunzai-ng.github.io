@@ -8,7 +8,7 @@
 ```
 <home>/config/
 ├─ yunzai.yaml              内核
-├─ adapter-napcat.yaml      每个插件一份，文件名即插件名
+├─ renderer-puppeteer.yaml  每个插件一份，文件名即插件名
 ├─ renderer-puppeteer.yaml
 └─ mhy-game.yaml
 ```

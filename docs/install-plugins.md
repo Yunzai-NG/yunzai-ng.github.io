@@ -6,8 +6,8 @@ title: 安装与管理插件
 const MANUAL = `
 # 先停掉机器人（Ctrl+C），进插件目录
 $ cd plugins
-$ git clone https://github.com/Yunzai-NG/adapter-napcat.git
-$ cd adapter-napcat
+$ git clone https://github.com/Yunzai-NG/adapter-onebot.git
+$ cd adapter-onebot
 # 装依赖并编译（多数插件的 dist/ 不进 git，不编译就没有入口）
 $ npm install
 $ npm run build
@@ -29,7 +29,7 @@ Yunzai NG 的几乎所有功能都来自插件。插件分两类，**装在两�
 | | 内核插件 | 面板插件包 |
 |---|---|---|
 | 是什么 | 跑在机器人进程里：命令、定时任务、适配器、渲染器 | 跑在浏览器里：往面板上加组件和页签 |
-| 例子 | adapter-napcat、renderer-puppeteer、steward | hardware（硬件监控）、webui-example |
+| 例子 | adapter-onebot、renderer-puppeteer、steward | hardware（硬件监控）、webui-example |
 | 在哪装 | 面板 → **插件市场** | 面板 → **面板商店** |
 | 装完 | 立即加载，不用重启 | 刷新页面；带 node 侧的包要到插件页重载 webui |
 

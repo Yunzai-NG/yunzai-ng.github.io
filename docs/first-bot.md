@@ -41,7 +41,7 @@ const NEXT = [
 |---|---|---|
 | **协议端** | 独立运行的程序（或库），替机器人登录 QQ 号、维持与 QQ 服务器的连接，再把收发消息的能力按某种协议开放出来 | NapCat、LLOneBot、Lagrange、go-cqhttp、oicq |
 | **通信协议** | 协议端与框架之间说的「话」。QQ 机器人圈子里最通行的是 [OneBot v11](https://github.com/botuniverse/onebot-11) | OneBot v11、QQ 官方 API |
-| **适配器** | Yunzai NG 的插件，把某种协议翻译成内核的通用事件，再把内核的回复翻译回去 | [adapter-napcat](/plugins/adapter-napcat)、[adapter-qqbot](/plugins/adapter-qqbot) |
+| **适配器** | Yunzai NG 的插件，把某种协议翻译成内核的通用事件，再把内核的回复翻译回去 | [adapter-onebot](/plugins/adapter-onebot)、[adapter-qqbot](/plugins/adapter-qqbot) |
 
 协议端决定「用什么方式登录 QQ」，适配器决定「框架怎么跟协议端对话」。两者分开，换协议端不必改插件，换框架也不必换协议端。
 
@@ -51,7 +51,7 @@ const NEXT = [
 |---|---|---|
 | 用什么账号 | 一个普通 QQ 号（**建议用小号**） | 在 [QQ 开放平台](https://q.qq.com/) 注册的机器人 |
 | 协议端 | 自己装一个，见下表 | 不需要，框架直连腾讯的接口 |
-| 适配器 | [adapter-napcat](/plugins/adapter-napcat) | [adapter-qqbot](/plugins/adapter-qqbot) |
+| 适配器 | [adapter-onebot](/plugins/adapter-onebot) | [adapter-qqbot](/plugins/adapter-qqbot) |
 | 能做什么 | 与真人账号一样收发群聊、私聊，戳一戳、撤回等 | 群聊、私聊、频道，受平台的内容与频率限制 |
 | 上手 | 装协议端，扫码登录 | 申请、审核，拿 AppID 与 AppSecret |
 
@@ -59,13 +59,13 @@ const NEXT = [
 
 | 协议端 | 实现方式 | 与本框架 |
 |---|---|---|
-| [NapCat](https://napneko.github.io/) | 基于官方 QQNT 客户端，无界面运行 | **推荐**。adapter-napcat 以它为基准开发与测试 |
-| [LLOneBot](https://github.com/LLOneBot/LLOneBot) | 作为 QQNT 客户端的插件运行 | 提供 OneBot v11，原则上可经 adapter-napcat 接入（未逐项测试） |
+| [NapCat](https://napneko.github.io/) | 基于官方 QQNT 客户端，无界面运行 | **推荐**。adapter-onebot 以它为基准开发与测试 |
+| [LLOneBot](https://github.com/LLOneBot/LuckyLilliaBot) | 现名 LuckyLilliaBot，基于官方 QQNT 客户端运行 | **支持**。与 NapCat 同等对待，两家的出入见 [adapter-onebot](/plugins/adapter-onebot#两家的出入) |
 | [Lagrange](https://github.com/LagrangeDev/Lagrange.Core) | 自行实现 QQNT 协议 | 其 Lagrange.OneBot 提供 OneBot v11，同上 |
 | [go-cqhttp](https://github.com/Mrs4s/go-cqhttp) | 自行实现手机 QQ 协议 | 曾是 OneBot 的事实标准，**已停止维护**，新部署不建议 |
 | [oicq](https://github.com/takayama-lily/oicq) / [icqq](https://github.com/icqqjs/icqq) | Node.js 库，嵌在机器人进程里 | 旧版 Yunzai-Bot 用的就是它。它不是独立的 OneBot 服务，本框架没有对应的适配器 |
 
-adapter-napcat 说的是标准 OneBot v11，因此别的 OneBot v11 协议端原则上都能接。它以 NapCat 命名，是因为几处 NapCat 的扩展与分歧（戳一戳走 `send_poke`、本地文件路径的写法、`get_file` 取媒体地址）是照 NapCat 做的；换用别的协议端时，这几项可能不可用，其余收发不受影响。各协议端的维护状态变化较快，以其主页为准。
+adapter-onebot 说的是标准 OneBot v11，因此别的 OneBot v11 协议端原则上都能接。它正式支持 NapCat 与 LLOneBot 两家：几处标准之外的扩展（戳一戳走 `send_poke`、表情回应、`get_file` 取媒体地址）两家都有、写法也一样。换用别的协议端时，这几项可能不可用，其余收发不受影响。各协议端的维护状态变化较快，以其主页为准。
 
 ::: warning 用小号
 第三方协议端登录的是一个真实的 QQ 号。机器人回复频繁时，平台风控可能限制这个号，所以别拿常用的大号来挂。
@@ -73,7 +73,7 @@ adapter-napcat 说的是标准 OneBot v11，因此别的 OneBot v11 协议端原
 
 ## 以 NapCat 为例
 
-下面以推荐的 NapCat 走一遍。换用别的 OneBot v11 协议端，第 1、2 步按它的文档做，要做的事是一样的：**登录账号，开一个 WebSocket 服务器**。
+下面以推荐的 NapCat 走一遍。换用 LLOneBot 或别的 OneBot v11 协议端，第 1、2 步按它的文档做，要做的事是一样的：**登录账号，开一个 WebSocket 服务器**（LLOneBot 里叫「正向 WebSocket」）。
 
 <div class="steps">
 
@@ -96,22 +96,22 @@ adapter-napcat 说的是标准 OneBot v11，因此别的 OneBot v11 协议端原
 
 保存。这一步是让协议端在 `ws://127.0.0.1:3001` 等着框架连上来。
 
-### 装适配器 adapter-napcat
+### 装适配器 adapter-onebot
 
-回到 Yunzai NG 的面板，进**插件市场**，找到 **adapter-napcat**，点「安装」：
+回到 Yunzai NG 的面板，进**插件市场**，找到 **adapter-onebot**，点「安装」：
 
-<Shot name="market" alt="面板的插件市场页，adapter-napcat 显示安装按钮" url="127.0.0.1:2536/#/market">插件市场：列出索引里的全部内核插件，点「安装」即可</Shot>
+<Shot name="market" alt="面板的插件市场页，adapter-onebot 显示安装按钮" url="127.0.0.1:2536/#/market">插件市场：列出索引里的全部内核插件，点「安装」即可</Shot>
 
 装完它会出现在**插件**页，状态为已加载。国内网络下拉取慢或超时，见[安装插件 · 国内网络](/install-plugins#国内网络)。
 
 ### 添加账号
 
-进**账号**页。页面按适配器分页签，选 **NapCat (OneBot v11)** 那一枚，点「添加账号」，弹窗里的表单按它的需要展开：
+进**账号**页。页面按适配器分页签，选 **OneBot v11（NapCat / LLOneBot）** 那一枚，点「添加账号」，弹窗里的表单按它的需要展开：
 
 <Shot name="accounts" alt="账号页的添加账号弹窗，NapCat 页签下" url="127.0.0.1:2536/#/accounts?adapter=napcat">每个适配器一枚页签，添加账号的表单由插件声明的字段生成</Shot>
 
 - **连接方式**：正向 WebSocket（对应上一步建的「WebSocket 服务器」）
-- **NapCat 地址**：`ws://127.0.0.1:3001`（缺省就是；用别的协议端时填它的地址）
+- **WebSocket 地址**：`ws://127.0.0.1:3001`（缺省就是；用别的协议端时填它的地址）
 - **Access Token**：填上一步编的那串
 - 其余保持缺省
 
@@ -128,7 +128,7 @@ adapter-napcat 说的是标准 OneBot v11，因此别的 OneBot v11 协议端原
 </div>
 
 ::: details 协议端在 Docker 里，或在另一台机器上？
-这时框架连不进协议端的 `127.0.0.1`。两种办法：把协议端的 WebSocket 服务器 Host 改成 `0.0.0.0`，「NapCat 地址」填它的局域网 IP；或者反过来，在协议端建「WebSocket 客户端」、账号里选「反向 WebSocket」，让协议端主动连框架。并把账号的「NapCat 可读取本机文件」关掉。四种连接方式的对照见 [adapter-napcat](/plugins/adapter-napcat#怎么装)。
+这时框架连不进协议端的 `127.0.0.1`。两种办法：把协议端的 WebSocket 服务器 Host 改成 `0.0.0.0`，「WebSocket 地址」填它的局域网 IP；或者反过来，在协议端建「WebSocket 客户端」（LLOneBot 里叫「反向 WebSocket」）、账号里选「反向 WebSocket」，让协议端主动连框架 —— 这时两边要填上同一个 Access Token，没填 token 的反向连接只接受本机。并把账号的「对端可读取本机文件」关掉。四种连接方式的对照见 [adapter-onebot](/plugins/adapter-onebot#怎么装)。
 :::
 
 ## 用 QQ 官方机器人接入

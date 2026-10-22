@@ -137,7 +137,7 @@ async login(session, mode) {
 
 ## 参照实现
 
-[`adapter-napcat`](https://github.com/Yunzai-NG/adapter-napcat) 仓库的 `src/`
+[`adapter-onebot`](https://github.com/Yunzai-NG/adapter-onebot) 仓库的 `src/`
 是 OneBot v11 的完整实现，其文件划分可直接沿用：
 
 | 文件 | 内容 |
@@ -180,5 +180,5 @@ expect(mock.texts).toEqual(["pong"])
 ## 下一步
 
 - [测试与发布](plugin/publish.md) —— 写测试、上架插件市场
-- [官方适配器的实现](plugins/adapter-napcat.md) —— 照着一个跑在生产上的读
+- [官方适配器的实现](plugins/adapter-onebot.md) —— 照着一个跑在生产上的读
 - [发消息](plugin/message.md) —— 你要实现的那套能力面，插件那侧是怎么用的

@@ -188,7 +188,7 @@ export default defineConfig({
         items: [
           { text: "一览与两个市场", link: "/official-plugins" },
           { text: "webui（面板）", link: "/plugins/webui" },
-          { text: "adapter-napcat（QQ）", link: "/plugins/adapter-napcat" },
+          { text: "adapter-onebot（QQ）", link: "/plugins/adapter-onebot" },
           { text: "adapter-qqbot（QQ 官方）", link: "/plugins/adapter-qqbot" },
           { text: "adapter-stdin（终端调试）", link: "/plugins/adapter-stdin" },
           { text: "renderer-puppeteer（出图）", link: "/plugins/renderer-puppeteer" },
