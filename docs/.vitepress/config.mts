@@ -99,8 +99,8 @@ export default defineConfig({
 
     nav: [
       { text: "快速上手", link: "/getting-started", activeMatch: "^/(intro|getting-started|first-bot|deploy|faq)" },
-      { text: "插件商店", link: "/store", activeMatch: "^/(store|install-plugins)" },
-      { text: "开发者指南", link: "/plugin-api", activeMatch: "^/(plugin-api|plugin/|adapter|renderer|panel-plugin|custom-page|market|from-source)" },
+      { text: "插件商店", link: "/store", activeMatch: "^/(store|install-plugins|themes)" },
+      { text: "开发者指南", link: "/plugin-api", activeMatch: "^/(plugin-api|plugin/|adapter|renderer|panel-plugin|custom-page|theme-dev|design-tokens|market|from-source)" },
       { text: "官方插件", link: "/official-plugins", activeMatch: "^/(official-plugins|plugins/)" },
       {
         text: "参考",
@@ -135,7 +135,8 @@ export default defineConfig({
         text: "插件商店",
         items: [
           { text: "浏览插件", link: "/store" },
-          { text: "安装与管理插件", link: "/install-plugins" }
+          { text: "安装与管理插件", link: "/install-plugins" },
+          { text: "外观与主题", link: "/themes" }
         ]
       },
       {
@@ -166,7 +167,9 @@ export default defineConfig({
             text: "扩展面板",
             items: [
               { text: "面板插件", link: "/panel-plugin" },
-              { text: "扩展页面", link: "/custom-page" }
+              { text: "扩展页面", link: "/custom-page" },
+              { text: "主题开发", link: "/theme-dev" },
+              { text: "设计令牌", link: "/design-tokens" }
             ]
           },
           {

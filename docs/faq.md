@@ -34,7 +34,7 @@ title: 常见问题
 
 | 现象 | 原因与办法 |
 |---|---|
-| 账号页选不到 NapCat (OneBot v11) | 还没装适配器 adapter-napcat，见[接入 QQ](/first-bot) |
+| 账号页没有「NapCat (OneBot v11)」页签 | 还没装适配器 adapter-napcat，见[接入 QQ](/first-bot) |
 | 账号一直离线 | 对照协议端的网络配置检查：类型是「WebSocket 服务器」、端口一致、两边 Token 一致。协议端在 Docker 或另一台机器上时，见[接入 QQ](/first-bot#以-napcat-为例) 末尾的说明 |
 | 用的不是 NapCat，戳一戳等发不出去 | adapter-napcat 的几项扩展照 NapCat 实现，别的 OneBot v11 协议端可能不支持，见[常见的协议端](/first-bot#常见的协议端) |
 | 离线后不再自动重连，日志里也没动静 | 连续失败已达重连上限（日志里有一条 warn）。在账号页点「重连」，或调大上限，见[配置项 · 适配器](/config#适配器-adapter) |

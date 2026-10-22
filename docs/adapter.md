@@ -31,7 +31,8 @@ export default definePlugin({
 ```
 
 `accountSchema` 为 `SchemaDescriptor`（`s.object({...}).describe()` 的产物），
-面板据此渲染"添加账号"表单 —— 编写适配器无须编写任何前端。
+面板据此渲染"添加账号"表单 —— 编写适配器无须编写任何前端。账号页给每个注册了的适配器一枚页签，
+页签名取 `name`、旁边的标签取 `platform`、说明取 `description`，这三项请写成使用者看得懂的话。
 
 **其中只声明连接该账号所需的东西**（地址、token、模式），不要声明重连次数与间隔：
 自动重连由内核统一做（见[重连策略](config.md#适配器-adapter)），适配器不参与，

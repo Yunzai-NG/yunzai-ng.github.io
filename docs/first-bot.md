@@ -106,16 +106,16 @@ adapter-napcat 说的是标准 OneBot v11，因此别的 OneBot v11 协议端原
 
 ### 添加账号
 
-进**账号**页，在「添加账号」里选适配器 **NapCat (OneBot v11)**，表单会按它的需要展开：
+进**账号**页。页面按适配器分页签，选 **NapCat (OneBot v11)** 那一枚，点「添加账号」，弹窗里的表单按它的需要展开：
 
-<Shot name="accounts" alt="账号页的添加账号表单，已选择 NapCat 适配器" url="127.0.0.1:2536/#/accounts">选好适配器后，表单由插件声明的字段生成</Shot>
+<Shot name="accounts" alt="账号页的添加账号弹窗，NapCat 页签下" url="127.0.0.1:2536/#/accounts?adapter=napcat">每个适配器一枚页签，添加账号的表单由插件声明的字段生成</Shot>
 
 - **连接方式**：正向 WebSocket（对应上一步建的「WebSocket 服务器」）
 - **NapCat 地址**：`ws://127.0.0.1:3001`（缺省就是；用别的协议端时填它的地址）
 - **Access Token**：填上一步编的那串
 - 其余保持缺省
 
-点「创建账号」。几秒内列表里的状态变成**在线**，就连上了。
+点「创建账号」。弹窗关掉，几秒内页签下那一行的状态变成**在线**，就连上了。
 
 ### 发一句试试
 
@@ -133,7 +133,7 @@ adapter-napcat 说的是标准 OneBot v11，因此别的 OneBot v11 协议端原
 
 ## 用 QQ 官方机器人接入
 
-这条路没有第三方协议端：在 [QQ 开放平台](https://q.qq.com/) 创建机器人、拿到 AppID 与 AppSecret 后，在插件市场装 **adapter-qqbot**，账号页选它并填入凭据即可。申请流程、沙箱与正式环境的区别见 [adapter-qqbot](/plugins/adapter-qqbot)。
+这条路没有第三方协议端：在 [QQ 开放平台](https://q.qq.com/) 创建机器人、拿到 AppID 与 AppSecret 后，在插件市场装 **adapter-qqbot**，在账号页它的页签下点「添加账号」、填入凭据即可。申请流程、沙箱与正式环境的区别见 [adapter-qqbot](/plugins/adapter-qqbot)。
 
 ## 没有 QQ 也想先试试
 

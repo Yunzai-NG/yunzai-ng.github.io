@@ -15,7 +15,7 @@
 | [adapter-stdin](/plugins/adapter-stdin) | 把运行框架的终端本身当账号，用于没有 QQ 环境时调试命令 | 插件市场 | 无（默认配置即可用；pm2 之下没有 TTY 用不了） |
 | [renderer-puppeteer](/plugins/renderer-puppeteer) | 把模板渲染成图片 | 插件市场 | 无（浏览器随装后步骤自动下载） |
 | [hardware](/plugins/hardware) | 整机硬件监控，十枚面板组件 | **面板商店** | 装完要重载 webui |
-| [webui-example](/plugins/webui-example) | 面板插件的示例包，用于照抄 | **面板商店** | 装完要重载 webui |
+| [webui-example](/plugins/webui-example) | 面板插件的示例包，用于照抄；附一套示例主题 | **面板商店** | 装完要重载 webui |
 | [mhy-game](/plugins/mhy-game) | 原神 / 星穹铁道 / 绝区零 查询 | 插件市场 | 渲染器（否则退回文字） |
 | [yenai-state](/plugins/yenai-state) | 椰奶风格的机器人状态图：CPU / 内存 / 磁盘 / 网络 / 进程等 | 插件市场 | 渲染器（出图） |
 | [steward](/plugins/steward) | 指令运维：`#重启` / `#关机` / 更新插件与内核，全限主人 | 插件市场 | 无（重启、关机借 `yzng start` 的[自带守护](/cli#自带进程守护)） |
@@ -53,4 +53,4 @@
 **卸载**只删安装目录，配置与数据都留着 —— 重装同名插件后原有配置仍然有效。
 
 面板插件包没有「重载」与「卸载」按钮：那两个动作对浏览器侧的包没有意义（刷新页面即重新加载），
-删除走面板商店。
+更新与删除也在插件页，面板商店只管安装。

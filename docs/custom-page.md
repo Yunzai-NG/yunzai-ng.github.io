@@ -10,7 +10,7 @@
 | 谁来提供 | 内核插件自己（`plugins/<你的插件>/webadapter/`） | webui 的 `plugins/` 目录 |
 | 长什么样 | 左侧一项 + 一整页 | 概览页上一格组件，或插件页上一个页签 |
 | 写什么 | 普通 HTML/CSS/JS，装在 iframe 里 | 一段 ESM，跑在面板自己的 Vue 里 |
-| 能用面板的样式吗 | 不能（在 iframe 内，自带样式） | 能，且应当用 |
+| 能用面板的样式吗 | 不能直接用（在 iframe 内）；引一行 SDK 即跟着主题走，见[跟着主题走](#跟着主题走) | 能，且应当用 |
 | 能读面板数据吗 | 能，只读，走白名单 | 能，只读，走 `get()` |
 | 每个提供者几个 | **只有一个** | 不限 |
 
@@ -127,6 +127,47 @@ export default {
 同样按「没给图标」处理 —— 一枚空白图标和没有图标，在使用者眼里没有区别。
 
 **图标出错只是没有图标，页面照常注册。** 这与 `src` 写错不同，那一条会让整个页面注册不上。
+
+## 跟着主题走
+
+页面装在不带 `allow-same-origin` 的 iframe 里，面板的样式与 CSS 变量都进不去 —— 那是安全设计。
+要让页面跟着面板的[主题](/themes)与明暗走，在 HTML 里引一行面板提供的 SDK：
+
+```html
+<script src="/theme-sdk.js"></script>
+```
+
+面板每次换主题、换明暗都会发一条消息过来，SDK 收到后：
+
+- 把面板的[设计令牌](/design-tokens)（`--text`、`--panel`、`--accent` …）写成你页面根上的 CSS 变量；
+- 在 `<html>` 上写好 `data-scheme`（`light` / `dark`）与 `data-theme-id`；
+- 派发一次 `yzng:theme` 事件，`event.detail` 是整条消息，含主题槽位图片的地址。
+
+于是你的样式照面板插件那样写就行：
+
+```css
+body { background: var(--bg, #f0f2f5); color: var(--text, #1e2128); }
+.box { border: 1px solid var(--border, #e4e8ed); border-radius: var(--r-card, 14px); }
+```
+
+变量后面带一个缺省值：页面单独打开（不在面板里）时 SDK 什么都不做，用的就是这些缺省值。
+
+想省事可以加 `data-base` 属性，SDK 另注入一份按令牌写好的基础样式（正文、标题、按钮、输入框、表格、`.card`）：
+
+```html
+<script src="/theme-sdk.js" data-base></script>
+```
+
+要用主题的图（比如主题给的空状态插图），听那个事件：
+
+```js
+window.addEventListener("yzng:theme", e => {
+  const art = e.detail.slots.empty   // 没有时为 undefined
+  document.querySelector("#empty").src = art ?? "./my-empty.svg"
+})
+```
+
+SDK 是经典脚本而不是 ES 模块：iframe 的源不透明，`<script type="module">` 会被静默拦下。webui 自己的「消息统计」页就是这么接的，可以照抄。
 
 ## 每个插件只有一个页面
 
