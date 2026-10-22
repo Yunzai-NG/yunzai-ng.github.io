@@ -211,8 +211,8 @@ onUnmounted(() => {
               </circle>
             </template>
           </svg>
-          <!-- 品牌图形放在内环里，宽高比与 logo-mark.svg 的画幅一致（302:284） -->
-          <img class="hero-mark" src="/brand/logo-mark.svg" alt="" width="302" height="284" />
+          <!-- 品牌图形放在内环里；logo-mark 是方形画幅 -->
+          <img class="hero-mark" src="/brand/logo-mark.webp" alt="" width="768" height="768" />
           <div class="orbit">
             <span v-for="(c, i) in ORBIT" :key="c.label" class="spoke" :style="{ '--a': `${i * 60}deg`, '--d': `${i * -0.6}s` }" />
             <span v-for="(c, i) in ORBIT" :key="c.icon" class="chip" :style="{ '--a': `${i * 60}deg`, '--d': `${i * -0.4}s` }">

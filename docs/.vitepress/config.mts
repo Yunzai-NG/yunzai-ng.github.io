@@ -86,9 +86,9 @@ export default defineConfig({
 
   // 图标与字标见 public/brand/README.md
   head: [
-    ["link", { rel: "icon", type: "image/svg+xml", href: "/brand/logo-rounded.svg" }],
-    ["link", { rel: "icon", type: "image/png", sizes: "1024x1024", href: "/brand/logo-rounded.png" }],
-    ["link", { rel: "apple-touch-icon", href: "/brand/logo-rounded.png" }],
+    ["link", { rel: "icon", type: "image/png", sizes: "64x64", href: "/brand/favicon-64.png" }],
+    ["link", { rel: "icon", type: "image/png", sizes: "256x256", href: "/brand/logo-mark-256.png" }],
+    ["link", { rel: "apple-touch-icon", href: "/brand/logo-square.png" }],
     ["meta", { name: "theme-color", content: "#0b0e16" }]
   ],
 
