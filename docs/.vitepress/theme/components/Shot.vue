@@ -17,6 +17,9 @@ const SIZES: Record<string, [number, number]> = {
   store: [1800, 1075],
   accounts: [1800, 1225],
   config: [1800, 1125],
+  "theme-classic": [1800, 1350],
+  "theme-pumpkin": [1800, 1225],
+  "theme-pumpkin-login": [1600, 950],
   phone: [780, 1688]
 }
 
