@@ -57,7 +57,8 @@ export default definePlugin({
 })
 ```
 
-几十行的小功能不必建目录和 `package.json`。改完在面板插件页点重载。
+几十行的小功能不必建目录和 `package.json`。**放进来即加载、拿走即卸载、改了即重载，不用重启**：内核盯着
+`plugins/` 与其下的单文件合集目录（内核配置 `plugins.watchScripts`，缺省开）。写坏的那份只报一次错，改好后自动再载。
 
 - **一个文件一个插件**，名字缺省取文件名。文件名是中文时要在 `definePlugin` 里写明 `name`
   （插件名的规则见[下文](#defineplugin)），上例即是。
@@ -119,6 +120,7 @@ export default definePlugin({
   dependencies: ["renderer-puppeteer"],
   provides: ["mihoyo.api"],
   priority: 100,             // 小者先加载
+  groupRules: true,          // 适配器插件用：名下机器人接受群配置，缺省不接受
   configSchema: s.object({ … }),
   setup(ctx) { … }
 })
@@ -139,6 +141,10 @@ export default definePlugin({
 插件名要匹配 `/^[a-z][a-z0-9._-]*$/i`，它同时是配置文件名、KV 命名空间前缀、URL 前缀和日志 scope。
 入口里写的名字非法，在 `import` 那一刻就抛错；取自 `package.json`、目录名或文件名的名字非法，只让这一个
 插件加载失败，报错会说明名字从哪来 —— 目录名与文件名能带中文与空格，那时在 `definePlugin` 里写明 `name` 即可。
+
+`groupRules` 给适配器插件用：声明了，它注册的适配器接入的机器人才接受[群配置](config.md#群配置-scope) —— 出现在面板的
+群配置账号里、能取群列表来配，群里的消息也才按群配置判前缀与禁用。适配器取得到群列表、群号稳定时就该声明；
+终端这类没有群的不写。`package.json` 里写 `"yunzai": { "groupRules": true }` 等效。业务插件不必写，它们的命令一律可以被禁。
 
 `dependencies` 只影响加载顺序与存活判定：**依赖缺失只让本插件跳过并记一条 warn，内核照常启动。**
 
