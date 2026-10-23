@@ -10,7 +10,7 @@
 | 插件 | 作用 | 装在哪 | 额外要求 |
 |---|---|---|---|
 | [webui](/plugins/webui) | 面板本身：十一个页面、配置表单、面板插件宿主与商店 | 插件市场 | 无 |
-| [adapter-onebot](/plugins/adapter-onebot) | 以 OneBot v11 接入 NapCat 或 LLOneBot，提供 QQ 收发 | 插件市场 | 一个在跑的 NapCat 或 LLOneBot |
+| [adapter-onebot](/plugins/adapter-onebot) | 以 OneBot v11 接入 NapCat、LLOneBot 或 SnowLuma，提供 QQ 收发 | 插件市场 | 一个在跑的 NapCat、LLOneBot 或 SnowLuma |
 | [adapter-qqbot](/plugins/adapter-qqbot) | 接入 QQ 官方机器人，群 / 私聊 / 频道四场景 | 插件市场 | QQ 开放平台的 AppID 与 AppSecret |
 | [adapter-stdin](/plugins/adapter-stdin) | 把运行框架的终端本身当账号，用于没有 QQ 环境时调试命令 | 插件市场 | 无（默认配置即可用；pm2 之下没有 TTY 用不了） |
 | [renderer-puppeteer](/plugins/renderer-puppeteer) | 把模板渲染成图片 | 插件市场 | 无（浏览器随装后步骤自动下载） |

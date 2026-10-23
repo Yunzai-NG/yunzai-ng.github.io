@@ -79,7 +79,7 @@ yunzai-ng/
 | 仓库 | 内容 |
 |---|---|
 | [`webui-plugin`](https://github.com/Yunzai-NG/webui-plugin) | 面板（十个页面与 schema 驱动的配置表单） |
-| [`adapter-onebot`](https://github.com/Yunzai-NG/adapter-onebot) | OneBot v11 适配器，接 NapCat 与 LLOneBot（四种网络模式） |
+| [`adapter-onebot`](https://github.com/Yunzai-NG/adapter-onebot) | OneBot v11 适配器，接 NapCat、LLOneBot 与 SnowLuma（四种网络模式） |
 | [`renderer-puppeteer`](https://github.com/Yunzai-NG/renderer-puppeteer) | puppeteer-core 与 art-template 渲染器 |
 | [`mhy-game-plugin`](https://github.com/Yunzai-NG/mhy-game-plugin) | 原神 / 星穹铁道 / 绝区零 |
 | [`hardware-plugin`](https://github.com/Yunzai-NG/hardware-plugin) | 硬件信息面板插件，兼作[面板插件](panel-plugin.md)的示例 |

@@ -1,7 +1,8 @@
 # adapter-onebot
 
-以 OneBot v11 协议接入 [NapCat](https://napneko.github.io/) 或 [LLOneBot](https://github.com/LLOneBot/LuckyLilliaBot)
-（现名 LuckyLilliaBot），提供 QQ 收发能力。面板上它叫「OneBot v11（NapCat / LLOneBot）」。
+以 OneBot v11 协议接入 [NapCat](https://napneko.github.io/)、[LLOneBot](https://github.com/LLOneBot/LuckyLilliaBot)
+（现名 LuckyLilliaBot）或 [SnowLuma](https://snowluma.github.io/zh/)，提供 QQ 收发能力。面板上它叫
+「OneBot v11（NapCat / LLOneBot / SnowLuma）」。
 
 ## 它做什么
 
@@ -15,24 +16,24 @@
 在插件市场里装，或手动放进 `plugins/`。装完在**面板的账号页**添加账号，按协议端的配置
 选连接方式：
 
-| NapCat 侧配置 | LLOneBot 侧配置 | 账号选哪种 | 适用场景 |
-|---|---|---|---|
-| WebSocket 服务器 | 正向 WebSocket | 正向 WebSocket | 同机部署，首选 |
-| WebSocket 客户端 | 反向 WebSocket | 反向 WebSocket | 协议端在容器或另一台主机，本机连不进去 |
-| HTTP 服务器 | HTTP | HTTP | 只发不收的推送场景 |
-| HTTP 服务器 + HTTP 客户端 | HTTP + HTTP 上报 | HTTP + 事件上报 | 两条单向通道凑一对，两侧 token 必须一致 |
+| NapCat 侧配置 | LLOneBot 侧配置 | SnowLuma 侧配置 | 账号选哪种 | 适用场景 |
+|---|---|---|---|---|
+| WebSocket 服务器 | 正向 WebSocket | `wsServers` | 正向 WebSocket | 同机部署，首选 |
+| WebSocket 客户端 | 反向 WebSocket | `wsClients` | 反向 WebSocket | 协议端在容器或另一台主机，本机连不进去 |
+| HTTP 服务器 | HTTP | `httpServers` | HTTP | 只发不收的推送场景 |
+| HTTP 服务器 + HTTP 客户端 | HTTP + HTTP 上报 | `httpServers` + `httpClients` | HTTP + 事件上报 | 两条单向通道凑一对，两侧 token 必须一致 |
 
 ### 账号的各栏
 
-表单按连接方式只给用得上的那几栏。缺省值对的是两家协议端的缺省配置，同机部署照着缺省走就能连上。
+表单按连接方式只给用得上的那几栏。缺省值对的是三家协议端的缺省配置，同机部署照着缺省走就能连上。
 
 | 栏 | 出现在 | 缺省 | 填什么 |
 |---|---|---|---|
-| WebSocket 地址 | 正向 WS | `ws://127.0.0.1:3001` | 对端 WebSocket 服务器的地址。两家缺省端口都是 3001 |
-| HTTP 地址 | HTTP、HTTP + 事件上报 | `http://127.0.0.1:3000` | 对端 HTTP 服务器的地址。两家缺省端口都是 3000 |
+| WebSocket 地址 | 正向 WS | `ws://127.0.0.1:3001` | 对端 WebSocket 服务器的地址。三家缺省端口都是 3001 |
+| HTTP 地址 | HTTP、HTTP + 事件上报 | `http://127.0.0.1:3000` | 对端 HTTP 服务器的地址。三家缺省端口都是 3000 |
 | 本机监听路径 | 反向 WS、HTTP + 事件上报 | `/napcat` | 对端连进来（或 POST 上报）的路径。对端要填的是 `面板地址 + /adapter/napcat + 这条路径`，如 `ws://127.0.0.1:2536/adapter/napcat/napcat`，连接时也会写进日志。多个账号各用一条 |
-| Access Token | 全部 | 空 | 与对端那条网络配置的 token 相同。「HTTP + 事件上报」在对端是两条配置，两条要填同一个 —— 上报签名（`x-signature`）就用它算 |
-| 忽略自身消息 | 能收消息的三种 | 开 | 两家缺省都不上报自身消息，那时只有机器人自己戳出去的戳一戳受它影响 |
+| Access Token | 全部 | 空 | 与对端那条网络配置的 token 相同。SnowLuma 给每条网络配置自动生成 token，见下。「HTTP + 事件上报」在对端是两条配置，两条要填同一个 —— 上报签名（`x-signature`）就用它算 |
+| 忽略自身消息 | 能收消息的三种 | 开 | 三家缺省都不上报自身消息，那时只有机器人自己戳出去的戳一戳受它影响 |
 | 对端可读取本机文件 | 全部（「传输」） | 开 | 同机部署保持开启，图片与语音直接交文件路径；对端在容器或另一台机器上时必须关 |
 | 接口调用超时 | 全部（「传输」） | 15 秒 | 一次 API 调用等多久算失败 |
 | 静默超时 | 两种 WS（「传输」） | 90 秒 | 这么久没收到任何报文（含心跳）就判定断线重连，见下 |
@@ -46,12 +47,20 @@
 token 留空即不鉴权，安全与否取决于对端自己监听在哪。
 :::
 
+::: tip SnowLuma 的 token 是自动生成的
+SnowLuma 首次运行时给每条网络配置各生成一个 token，HTTP 与 WebSocket 的不是同一个。到它的 WebUI（缺省端口 5099）
+或 `config/onebot_<QQ号>.json` 里找到对应那条的 `accessToken`，照抄进账号。没填的话正向 WS 会被 401 拒绝，
+报错里会提示这一点。用「HTTP + 事件上报」时，新建的那条 `httpClients` 的 `accessToken` 要改成与 `httpServers` 那条一样。
+
+SnowLuma 一个 QQ 号一个 OneBot 实例，缺省都占 3000 / 3001，第二个号要在它的配置里换端口，账号这边的地址跟着改。
+:::
+
 连的是哪一家不用选：连上之后适配器调一次 `get_version_info` 认出对端，日志里写成
-「已接入 LLOneBot 7.x：昵称」。两家扩展出来的接口（戳一戳、表情回应、合并转发、群文件、`get_file`）
+「已接入 LLOneBot 7.x：昵称」。三家扩展出来的接口（戳一戳、表情回应、合并转发、群文件、`get_file`）
 同名、参数也一样，故功能上没有差别。
 
 ::: tip 静默超时与心跳
-账号的「静默超时」缺省 90 秒，须大于协议端的心跳间隔：NapCat 缺省 30 秒，LLOneBot 缺省 60 秒。
+账号的「静默超时」缺省 90 秒，须大于协议端的心跳间隔：NapCat 与 SnowLuma 缺省 30 秒，LLOneBot 缺省 60 秒。
 把 LLOneBot 的心跳调到 90 秒以上时，记得同时调大这里。
 :::
 
@@ -70,15 +79,16 @@ HTTP 上报的地址（`/adapter/napcat/…`）也不变，协议端那边不用
 
 两个同时在会抢同一个适配器 id，后加载的那个报错，故先删再装。
 
-## 两家的出入
+## 各家的出入
 
-两家绝大部分行为一致，适配器只在下面三处就地抹平，不按实现分岔：
+三家绝大部分行为一致，适配器只在下面几处就地抹平，不按实现分岔：
 
-| 出入 | NapCat | LLOneBot | 适配器怎么做 |
-|---|---|---|---|
-| `get_file` 的参数 | `file` 或 `file_id` | 只认 `file` | 两个一起送 |
-| 私聊戳一戳的发起者 | 另给 `sender_id` | 不给；机器人戳好友时报成「好友戳好友」 | 没有 `sender_id`、发起者与被戳者又相同时，认作机器人自己戳的，按自身消息处理（缺省不投） |
-| HTTP 下不认识的接口 | HTTP 200 + `status: "failed"` | HTTP 404 + 同样的报文 | 有报文就照报文报「不支持该 API」 |
+| 出入 | NapCat | LLOneBot | SnowLuma | 适配器怎么做 |
+|---|---|---|---|---|
+| `get_file` 的参数 | `file` 或 `file_id` | 只认 `file` | `file` 或 `file_id` | 两个一起送 |
+| 私聊戳一戳的发起者 | 另给 `sender_id` | 不给；机器人戳好友时报成「好友戳好友」 | 另给 `sender_id` | 没有 `sender_id`、发起者与被戳者又相同时，认作机器人自己戳的，按自身消息处理（缺省不投） |
+| HTTP 下不认识的接口 | HTTP 200 + `status: "failed"` | HTTP 404 + 同样的报文 | HTTP 200 + `status: "failed"` | 有报文就照报文报「不支持该 API」 |
+| Access Token | 可留空 | 可留空 | 每条网络配置自动生成 | 握手被拒而账号没填 token 时，报错里指明去哪儿抄 |
 
 另外 LLOneBot 的表情回应（`bot.setReaction`）只支持群消息，对私聊消息会报「只支持群聊消息」。
 
@@ -152,7 +162,7 @@ ctx.on("notice", async e => {
 | `src/index.ts` | 适配器注册与账号的连接参数 schema |
 | `src/transport.ts` | 四种网络模式收敛为一个接口 |
 | `src/bot.ts` | `BotDriver` 实现：通用能力面 → OneBot v11 API |
-| `src/dialect.ts` | 认出对端是 NapCat 还是 LLOneBot，以及两家出入的说明 |
+| `src/dialect.ts` | 认出对端是哪一家，以及各家出入的说明 |
 | `src/codec.ts` | 消息段双向翻译（数组与 CQ 码都收） |
 | `src/events.ts` | 上报报文 → 内核的 `IncomingEvent` |
 | `src/media.ts` | 媒体引用与 `file` 字段互转 |

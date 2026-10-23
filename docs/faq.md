@@ -34,9 +34,9 @@ title: 常见问题
 
 | 现象 | 原因与办法 |
 |---|---|
-| 账号页没有「OneBot v11（NapCat / LLOneBot）」页签 | 还没装适配器 adapter-onebot，见[接入 QQ](/first-bot) |
+| 账号页没有「OneBot v11（NapCat / LLOneBot / SnowLuma）」页签 | 还没装适配器 adapter-onebot，见[接入 QQ](/first-bot) |
 | 账号一直离线 | 对照协议端的网络配置检查：类型是「WebSocket 服务器」、端口一致、两边 Token 一致。协议端在 Docker 或另一台机器上时，见[接入 QQ](/first-bot#以-napcat-为例) 末尾的说明 |
-| 用的不是 NapCat / LLOneBot，戳一戳等发不出去 | adapter-onebot 的几项扩展照这两家实现，别的 OneBot v11 协议端可能不支持，见[常见的协议端](/first-bot#常见的协议端) |
+| 用的不是 NapCat / LLOneBot / SnowLuma，戳一戳等发不出去 | adapter-onebot 的几项扩展照这三家实现，别的 OneBot v11 协议端可能不支持，见[常见的协议端](/first-bot#常见的协议端) |
 | 离线后不再自动重连，日志里也没动静 | 连续失败已达重连上限（日志里有一条 warn）。在账号页点「重连」，或调大上限，见[配置项 · 适配器](/config#适配器-adapter) |
 | 在线但发消息不回 | 内核不内置命令。装个功能插件，或用 `npx yzng plugin new hello` 生成一个 `#ping` 来验证 |
 | 机器人回复自己的回复，停不下来 | 账号的「忽略自身消息」被关掉了，打开它 |
