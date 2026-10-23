@@ -236,7 +236,7 @@ onUnmounted(() => {
 }
 
 .term-btn:hover {
-  color: #f0d8a8;
+  color: #ffa95c;
   background: rgb(255 255 255 / 6%);
 }
 
@@ -271,7 +271,7 @@ onUnmounted(() => {
 }
 
 .ps {
-  color: #f0d8a8;
+  color: #ffa95c;
   user-select: none;
 }
 
@@ -297,12 +297,12 @@ onUnmounted(() => {
 }
 
 .ask {
-  color: #8fd9ff;
+  color: #9fe6ff;
 }
 
 .ask::before {
   content: "? ";
-  color: #4fd6e8;
+  color: #4fd3fb;
   font-weight: 700;
 }
 
@@ -312,7 +312,7 @@ onUnmounted(() => {
 
 .input::before {
   content: "› ";
-  color: #4fd6e8;
+  color: #4fd3fb;
 }
 
 .mk {
@@ -320,9 +320,9 @@ onUnmounted(() => {
 }
 
 .url {
-  color: #4fd6e8;
+  color: #4fd3fb;
   text-decoration: underline;
-  text-decoration-color: rgb(79 214 232 / 40%);
+  text-decoration-color: rgb(79 211 251 / 40%);
   text-underline-offset: 3px;
 }
 
@@ -332,7 +332,7 @@ onUnmounted(() => {
   height: 1.15em;
   margin-left: 1px;
   vertical-align: -0.2em;
-  background: #f0d8a8;
+  background: #ffa95c;
   animation: yz-caret 1s steps(1) infinite;
 }
 

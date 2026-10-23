@@ -41,10 +41,10 @@ const ORBIT = [
 ]
 
 const STATS = [
-  { value: 359, digits: 0, unit: "ms", label: "冷启动（带面板）", note: "0.6.5 时为 2296 ms" },
-  { value: 12.8, digits: 1, unit: "MB", label: "启动后 heap", note: "不带面板仅 218 ms 启动" },
-  { value: 7, digits: 0, unit: "万条/秒", label: "纯内核消息吞吐", note: "带三个官方插件约 5.2 万" },
-  { value: 0.5, digits: 1, unit: "MB", label: "1 万条消息后的驻留", note: "GC 后 heap 几乎不涨" }
+  { value: 328, digits: 0, unit: "ms", label: "冷启动（带面板）", note: "0.6.5 时为 2235 ms" },
+  { value: 18.0, digits: 1, unit: "MB", label: "启动后 heap（带面板）", note: "纯内核仅 141 ms 启动" },
+  { value: 5.3, digits: 1, unit: "万条/秒", label: "纯内核消息吞吐", note: "带四个官方插件约 4.2 万" },
+  { value: 0.6, digits: 1, unit: "MB", label: "1 万条消息后的驻留", note: "GC 后 heap 几乎不涨" }
 ]
 
 const PIPELINE: FlowStep[] = [
@@ -58,7 +58,7 @@ const PIPELINE: FlowStep[] = [
 ]
 
 const FEATURES = [
-  { icon: "zap", title: "毫秒级冷启动", desc: "发布产物由 esbuild 打包，用不到的模块不加载。带面板 359 ms，比 0.6.5 快六倍。" },
+  { icon: "zap", title: "毫秒级冷启动", desc: "发布产物由 esbuild 打包，用不到的模块不加载。带面板 328 ms，比 0.6.5 快六倍。" },
   { icon: "layers", title: "一切皆插件", desc: "内核不认识任何聊天平台、不内置任何命令。适配器、面板、渲染器都可以换、可以不装。" },
   { icon: "replay", title: "卸得干干净净", desc: "ctx 上每一项注册都返回 Disposer，卸载插件时命令、定时任务、路由、中间件一并回收。" },
   { icon: "panel", title: "配置即表单", desc: "插件声明一份 configSchema，就同时得到输入校验、面板表单与带注释的 YAML。" },
@@ -156,7 +156,7 @@ onUnmounted(() => {
         <div class="hero-text">
           <a class="pill" href="/perf">
             <span class="live" />
-            0.7 内核 · 冷启动 359 ms
+            0.7 内核 · 冷启动 328 ms
             <Icon name="arrow" :size="14" />
           </a>
           <h1 class="title">
@@ -235,12 +235,12 @@ onUnmounted(() => {
         <div class="bench-row">
           <span class="bench-k">0.6.5</span>
           <span class="bar old"><i style="--w: 100%" /></span>
-          <span class="bench-v">2296 ms</span>
+          <span class="bench-v">2235 ms</span>
         </div>
         <div class="bench-row">
           <span class="bench-k">0.7.0</span>
-          <span class="bar"><i style="--w: 15.6%" /></span>
-          <span class="bench-v hi">359 ms</span>
+          <span class="bar"><i style="--w: 14.7%" /></span>
+          <span class="bench-v hi">328 ms</span>
         </div>
         <p class="bench-note">从进程启动到就绪的 CPU 时间中位数，带面板。<a href="/perf">测量方式与复现脚本 →</a></p>
       </div>
@@ -275,7 +275,7 @@ onUnmounted(() => {
       <div class="head rv">
         <span class="eyebrow">02 · 管线</span>
         <h2>一条消息走过的路</h2>
-        <p>金色是内核，青色是插件。内核只负责把消息按顺序交下去，能做什么全看装了哪些插件。</p>
+        <p>橙色是内核，蓝色是插件。内核只负责把消息按顺序交下去，能做什么全看装了哪些插件。</p>
       </div>
       <div class="rv"><Flow :steps="PIPELINE" /></div>
     </section>
@@ -366,26 +366,26 @@ onUnmounted(() => {
 <style>
 /* 不加 scoped：首页的选择器都挂在 .yz-home 下，深色要读 html.dark，scoped 写起来全是 :global */
 .yz-home {
-  --h-a1: rgb(208 160 70 / 20%);
-  --h-a2: rgb(14 159 181 / 16%);
-  --h-a3: rgb(109 91 208 / 12%);
-  --h-grid: rgb(122 92 31 / 16%);
+  --h-a1: rgb(16 186 245 / 16%);
+  --h-a2: rgb(74 95 240 / 14%);
+  --h-a3: rgb(160 70 247 / 12%);
+  --h-grid: rgb(40 50 140 / 14%);
   --h-glass: rgb(255 255 255 / 66%);
-  --h-glass-line: rgb(122 92 31 / 14%);
-  --h-ring: rgb(122 92 31 / 30%);
-  --h-star: rgb(122 92 31 / 45%);
+  --h-glass-line: rgb(40 50 140 / 12%);
+  --h-ring: rgb(74 95 240 / 28%);
+  --h-star: rgb(60 70 170 / 45%);
   overflow-x: hidden;
   overflow-x: clip;
 }
 
 .dark .yz-home {
-  --h-a1: rgb(240 216 168 / 16%);
-  --h-a2: rgb(79 214 232 / 15%);
-  --h-a3: rgb(130 110 255 / 16%);
-  --h-grid: rgb(120 200 255 / 13%);
-  --h-glass: rgb(20 26 41 / 62%);
+  --h-a1: rgb(79 211 251 / 14%);
+  --h-a2: rgb(138 155 255 / 15%);
+  --h-a3: rgb(196 141 255 / 15%);
+  --h-grid: rgb(140 170 255 / 12%);
+  --h-glass: rgb(18 24 44 / 62%);
   --h-glass-line: rgb(255 255 255 / 8%);
-  --h-ring: rgb(240 216 168 / 26%);
+  --h-ring: rgb(138 155 255 / 26%);
   --h-star: rgb(220 235 255 / 70%);
 }
 
@@ -399,7 +399,7 @@ onUnmounted(() => {
   font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.12em;
-  color: var(--yz-cyan);
+  color: var(--yz-sky);
 }
 
 /* ─────────────── HERO ─────────────── */
@@ -548,7 +548,7 @@ onUnmounted(() => {
 }
 
 .yz-home .pill:hover {
-  border-color: var(--yz-cyan);
+  border-color: var(--yz-sky);
 }
 
 .yz-home .live {
@@ -577,7 +577,8 @@ onUnmounted(() => {
 
 .yz-home .brand {
   font-size: clamp(46px, 7vw, 80px);
-  background: linear-gradient(110deg, #b88d3a, #f0d8a8 30%, #4fd6e8 55%, #d3bc8e 80%, #b88d3a);
+  /* 沿图标那朵云从青走到紫再回到青，首尾同色才能无缝滚动 */
+  background: linear-gradient(110deg, #10b9f5, #4a5ff0 30%, #a046f7 55%, #4a5ff0 80%, #10b9f5);
   background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -647,13 +648,13 @@ onUnmounted(() => {
 }
 
 .yz-home .btn.primary {
-  color: #1a1408;
-  background: linear-gradient(120deg, #f0d8a8, #d3bc8e 45%, #7fe0ec);
-  box-shadow: 0 10px 30px -12px rgb(211 188 142 / 70%);
+  color: #1f0f04;
+  background: var(--yz-ember);
+  box-shadow: 0 10px 30px -12px rgb(255 151 60 / 70%);
 }
 
 .yz-home .btn.primary:hover {
-  box-shadow: 0 14px 36px -10px rgb(79 214 232 / 55%);
+  box-shadow: 0 14px 36px -10px rgb(252 90 79 / 55%);
 }
 
 .yz-home .btn.ghost {
@@ -685,7 +686,7 @@ onUnmounted(() => {
 
 .yz-home .install:hover {
   color: var(--vp-c-text-1);
-  border-color: var(--yz-cyan);
+  border-color: var(--yz-sky);
 }
 
 .yz-home .install code {
@@ -699,7 +700,7 @@ onUnmounted(() => {
 }
 
 .yz-home .install .ps {
-  color: var(--yz-gold-2);
+  color: var(--yz-brand-2);
 }
 
 /* 核心视觉：SVG 画环与核心，HTML 画环上的特性标签；两者同心、同周期旋转，标签就骑在外环上 */
@@ -721,7 +722,7 @@ onUnmounted(() => {
   position: absolute;
   inset: 22%;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(240 216 168 / 38%), rgb(79 214 232 / 14%) 60%, transparent);
+  background: radial-gradient(closest-side, rgb(255 151 60 / 30%), rgb(74 95 240 / 16%) 58%, transparent);
   animation: yz-breathe 5s ease-in-out infinite;
 }
 
@@ -756,12 +757,12 @@ onUnmounted(() => {
 
 .yz-home .ring.r2 {
   stroke-dasharray: 2 6;
-  stroke: rgb(79 214 232 / 40%);
+  stroke: rgb(16 186 245 / 40%);
   stroke-width: 1.6;
 }
 
 .yz-home .tick {
-  fill: var(--yz-cyan);
+  fill: var(--yz-sky);
 }
 
 .yz-home .spin {
@@ -801,11 +802,11 @@ onUnmounted(() => {
 }
 
 .yz-home .packet {
-  fill: #f0d8a8;
+  fill: #ff973c;
 }
 
 .yz-home .packet.cy {
-  fill: #4fd6e8;
+  fill: #10b9f5;
 }
 
 .yz-home .orbit {
@@ -822,7 +823,7 @@ onUnmounted(() => {
   height: 1px;
   transform-origin: 0 50%;
   transform: rotate(calc(var(--a) - 90deg));
-  background: linear-gradient(90deg, transparent 42%, rgb(79 214 232 / 32%) 80%, transparent);
+  background: linear-gradient(90deg, transparent 42%, rgb(16 186 245 / 32%) 80%, transparent);
 }
 
 /* 光点沿辐条从外环流向核心 */
@@ -834,8 +835,8 @@ onUnmounted(() => {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #f0d8a8;
-  box-shadow: 0 0 8px #f0d8a8;
+  background: #ff973c;
+  box-shadow: 0 0 8px #ff973c;
   animation: yz-inflow 3.6s ease-in infinite;
   animation-delay: var(--d);
 }
@@ -894,7 +895,7 @@ onUnmounted(() => {
 }
 
 .yz-home .chip-in .yz-icon {
-  color: var(--yz-cyan);
+  color: var(--yz-sky);
 }
 
 @keyframes yz-bob {
@@ -1015,7 +1016,7 @@ onUnmounted(() => {
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.03em;
-  background: linear-gradient(120deg, var(--yz-gold-1), var(--yz-cyan));
+  background: linear-gradient(120deg, var(--yz-brand-1), var(--yz-sky));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -1067,7 +1068,7 @@ onUnmounted(() => {
 
 .yz-home .bench-v.hi {
   font-weight: 800;
-  color: var(--yz-cyan);
+  color: var(--yz-sky);
 }
 
 .yz-home .bar {
@@ -1082,8 +1083,8 @@ onUnmounted(() => {
   width: var(--w);
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--yz-gold-2), var(--yz-cyan));
-  box-shadow: 0 0 14px rgb(79 214 232 / 50%);
+  background: var(--yz-cloud);
+  box-shadow: 0 0 14px rgb(74 95 240 / 45%);
   transform-origin: 0 50%;
 }
 
@@ -1134,7 +1135,7 @@ onUnmounted(() => {
   top: 40px;
   bottom: 4px;
   width: 2px;
-  background: linear-gradient(var(--yz-gold-2), transparent);
+  background: linear-gradient(var(--yz-brand-2), transparent);
   opacity: 0.5;
 }
 
@@ -1146,9 +1147,9 @@ onUnmounted(() => {
   height: 36px;
   border-radius: 50%;
   font-weight: 800;
-  color: #1a1408;
-  background: linear-gradient(135deg, #f0d8a8, #7fe0ec);
-  box-shadow: 0 0 18px rgb(211 188 142 / 45%);
+  color: #ffffff;
+  background: var(--yz-cloud);
+  box-shadow: 0 0 18px rgb(74 95 240 / 40%);
 }
 
 .yz-home .start-steps strong {
@@ -1207,7 +1208,7 @@ onUnmounted(() => {
 }
 
 .yz-home .feat:hover {
-  border-color: color-mix(in srgb, var(--yz-gold-2) 55%, var(--vp-c-divider));
+  border-color: color-mix(in srgb, var(--yz-brand-2) 55%, var(--vp-c-divider));
   transform: translateY(-3px);
 }
 
@@ -1222,8 +1223,8 @@ onUnmounted(() => {
   width: 46px;
   height: 46px;
   border-radius: 13px;
-  color: var(--yz-gold-1);
-  background: linear-gradient(135deg, var(--yz-gold-soft), var(--yz-cyan-soft));
+  color: var(--yz-brand-1);
+  background: linear-gradient(135deg, var(--yz-brand-soft), var(--yz-sky-soft));
   box-shadow: 0 0 0 1px var(--h-glass-line) inset;
 }
 
@@ -1391,7 +1392,7 @@ onUnmounted(() => {
   border-radius: 20px;
   border: 1px solid var(--vp-c-divider);
   background:
-    radial-gradient(120% 90% at 100% 0%, var(--yz-gold-soft), transparent 60%),
+    radial-gradient(120% 90% at 100% 0%, var(--yz-brand-soft), transparent 60%),
     var(--vp-c-bg-soft);
   color: inherit;
   overflow: hidden;
@@ -1400,18 +1401,18 @@ onUnmounted(() => {
 
 .yz-home .path.dev {
   background:
-    radial-gradient(120% 90% at 100% 0%, var(--yz-cyan-soft), transparent 60%),
+    radial-gradient(120% 90% at 100% 0%, var(--yz-sky-soft), transparent 60%),
     var(--vp-c-bg-soft);
 }
 
 .yz-home .path:hover {
   transform: translateY(-4px);
-  border-color: var(--yz-gold-2);
+  border-color: var(--yz-brand-2);
   box-shadow: 0 24px 50px -30px var(--yz-glow);
 }
 
 .yz-home .path.dev:hover {
-  border-color: var(--yz-cyan);
+  border-color: var(--yz-sky);
 }
 
 .yz-home .path-ic {
@@ -1420,13 +1421,13 @@ onUnmounted(() => {
   width: 52px;
   height: 52px;
   border-radius: 15px;
-  color: var(--yz-gold-1);
-  background: var(--yz-gold-soft);
+  color: var(--yz-brand-1);
+  background: var(--yz-brand-soft);
 }
 
 .yz-home .path.dev .path-ic {
-  color: var(--yz-cyan);
-  background: var(--yz-cyan-soft);
+  color: var(--yz-sky);
+  background: var(--yz-sky-soft);
 }
 
 .yz-home .path strong {
@@ -1469,7 +1470,7 @@ onUnmounted(() => {
   height: 200vmax;
   margin: -100vmax 0 0 -100vmax;
   z-index: -1;
-  background: conic-gradient(from 0deg, transparent 0 55%, #d3bc8e 70%, #4fd6e8 85%, transparent 100%);
+  background: conic-gradient(from 0deg, transparent 0 55%, #10b9f5 68%, #4a5ff0 78%, #a046f7 88%, transparent 100%);
   animation: yz-spin 7s linear infinite;
 }
 
@@ -1478,7 +1479,7 @@ onUnmounted(() => {
   border-radius: 23px;
   text-align: center;
   background:
-    radial-gradient(70% 120% at 50% 0%, var(--yz-gold-soft), transparent 70%),
+    radial-gradient(70% 120% at 50% 0%, var(--yz-brand-soft), transparent 70%),
     var(--vp-c-bg-soft);
 }
 

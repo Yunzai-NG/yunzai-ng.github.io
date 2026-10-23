@@ -28,7 +28,7 @@
 | `nickname` | `[]` | 群内以昵称开头等同于 @ 机器人 |
 | `onlyMaster` | `false` | 维护模式：仅响应主人。用于线上排障期间隔离其他用户 |
 
-`ignoreSelf` 已下放给适配器：自身消息投不投由它决定（NapCat 是账号配置项 `ignoreSelf`，
+`ignoreSelf` 已下放给适配器：自身消息投不投由它决定（adapter-onebot 是账号配置项 `ignoreSelf`，
 缺省不投），内核不再过滤。老配置里残留的那一行会被静默忽略，不必手动删。
 
 ### 日志 `log`

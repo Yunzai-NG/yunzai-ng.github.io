@@ -84,7 +84,7 @@ onUnmounted(() => {
 }
 
 .to-top:hover {
-  color: var(--yz-cyan);
+  color: var(--yz-sky);
 }
 
 .ring {

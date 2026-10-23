@@ -57,7 +57,7 @@ ctx.command("#踢人").admin().cooldown("3s").action(async e => { … })
 | `block` | 命中后是否阻断后续候选，缺省阻断 |
 | `hidden` | 不出现在帮助里 |
 
-自身消息由适配器决定要不要投给内核（NapCat 是账号配置项 `ignoreSelf`，缺省不投），
+自身消息由适配器决定要不要投给内核（adapter-onebot 是账号配置项 `ignoreSelf`，缺省不投），
 路由这一层不再过滤，故命令选项里没有对应开关。
 
 链式方法覆盖常用项：`.action() .alias() .desc() .scene() .master() .admin() .cooldown()

@@ -40,7 +40,8 @@ pnpm run verify
 | `pnpm run lint` | ESLint；`lint:fix` 自动修 |
 | `pnpm run check:layering` | 校验包之间的依赖方向没被破坏 |
 | `pnpm run check:firstrun` | 全新目录冷启动一次，确认首次运行可用 |
-| `pnpm run bench:memory` | 内存基线，见[性能基线](perf.md) |
+| `pnpm run bench:memory` | 内存与吞吐基线，见[性能基线](perf.md) |
+| `pnpm run bench:startup` | 启动耗时基线；`--core` 可换一份内核与它对比，见[性能基线](perf.md) |
 
 ## 包之间的关系
 

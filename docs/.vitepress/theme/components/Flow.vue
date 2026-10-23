@@ -3,7 +3,7 @@
  * 流程图：一串节点，节点之间是流动的虚线与光点
  *
  * 宽时横排，容器窄于 640px 时竖排（按容器而非视口判断 —— 有侧栏时正文比视口窄得多）。
- * `tone` 给节点换色：core 为金、ext 为青，不给为中性。
+ * `tone` 给节点换色：core 为橙、ext 为蓝，不给为中性。
  */
 import Icon from "./Icon.vue"
 
@@ -77,13 +77,13 @@ withDefaults(defineProps<{ steps: FlowStep[]; caption?: string }>(), { caption: 
 }
 
 .node.core {
-  --n: var(--yz-gold-2);
-  --n-soft: var(--yz-gold-soft);
+  --n: var(--yz-pumpkin);
+  --n-soft: var(--yz-pumpkin-soft);
 }
 
 .node.ext {
-  --n: var(--yz-cyan);
-  --n-soft: var(--yz-cyan-soft);
+  --n: var(--yz-sky);
+  --n-soft: var(--yz-sky-soft);
 }
 
 .badge {
@@ -141,8 +141,8 @@ withDefaults(defineProps<{ steps: FlowStep[]; caption?: string }>(), { caption: 
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--yz-cyan);
-  box-shadow: 0 0 10px var(--yz-cyan);
+  background: var(--yz-sky);
+  box-shadow: 0 0 10px var(--yz-sky);
   animation: yz-flow 2.1s ease-in-out infinite;
 }
 

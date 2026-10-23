@@ -1,92 +1,100 @@
 /*
- * 文档站主题：金色（主色）+ 青色（科技感的辅色）
+ * 文档站主题：取自品牌图标 —— 云的青 → 蓝 → 紫做主色与渐变，南瓜的橙做强调（主按钮、「内核」）
  *
  * 只改 VitePress 的令牌与少数选择器，不替换默认布局 —— 导航、侧栏、搜索的交互照旧。
- * 深色是主场：页底换成偏蓝的深夜色，金与青在上面才「发光」；浅色取暖白，金色压到 #7a5c1f
- * 一档（品牌说明里写明：金色在白底上对比度只有 1.9:1）。
+ * 图标上的原色太亮，白底上当正文链接不够 4.5:1，故浅色主题里的蓝与青各压深一档。
  */
 
 :root {
-  --yz-gold-1: #7a5c1f;
-  --yz-gold-2: #9a7429;
-  --yz-gold-3: #b88d3a;
-  --yz-gold-soft: rgb(184 141 58 / 14%);
-  --yz-cyan: #0e9fb5;
-  --yz-cyan-soft: rgb(14 159 181 / 12%);
-  --yz-violet: #6d5bd0;
-  --yz-glow: rgb(184 141 58 / 22%);
-  --yz-grid: rgb(60 40 10 / 7%);
+  --yz-brand-1: #3346d6;
+  --yz-brand-2: #4a5ff0;
+  --yz-brand-3: #6b7dff;
+  --yz-brand-soft: rgb(74 95 240 / 11%);
+  --yz-sky: #0978b8;
+  --yz-sky-soft: rgb(16 186 245 / 12%);
+  --yz-violet: #8a44f5;
+  --yz-pumpkin: #c24a08;
+  --yz-pumpkin-soft: rgb(255 151 60 / 14%);
+  --yz-glow: rgb(74 95 240 / 20%);
+  --yz-grid: rgb(40 50 120 / 7%);
   --yz-radius: 14px;
+  /* 云的那道渐变；文字与细线用它，大块面用不透明的端点色 */
+  --yz-cloud: linear-gradient(120deg, #10b9f5, #4a5ff0 55%, #a046f7);
+  --yz-ember: linear-gradient(120deg, #ffc94c, #ff973c 50%, #fc5a4f);
 
-  --vp-c-brand-1: var(--yz-gold-1);
-  --vp-c-brand-2: var(--yz-gold-2);
-  --vp-c-brand-3: var(--yz-gold-3);
-  --vp-c-brand-soft: var(--yz-gold-soft);
+  --vp-c-brand-1: var(--yz-brand-1);
+  --vp-c-brand-2: var(--yz-brand-2);
+  --vp-c-brand-3: var(--yz-brand-3);
+  --vp-c-brand-soft: var(--yz-brand-soft);
 
-  --vp-c-bg: #fdfcf9;
-  --vp-c-bg-alt: #f6f3ec;
-  --vp-c-bg-soft: #f3efe6;
+  --vp-c-bg: #fbfcff;
+  --vp-c-bg-alt: #f4f6fd;
+  --vp-c-bg-soft: #eef1fb;
   --vp-c-bg-elv: #ffffff;
-  --vp-c-divider: #e8e2d4;
-  --vp-c-gutter: #ece6d8;
+  --vp-c-divider: #e1e5f3;
+  --vp-c-gutter: #e8ebf6;
 
-  --vp-c-tip-1: var(--yz-cyan);
-  --vp-c-tip-2: #0b8597;
-  --vp-c-tip-3: #0a6f7e;
-  --vp-c-tip-soft: var(--yz-cyan-soft);
+  --vp-c-tip-1: var(--yz-sky);
+  --vp-c-tip-2: #08669c;
+  --vp-c-tip-3: #065584;
+  --vp-c-tip-soft: var(--yz-sky-soft);
 
-  --vp-button-brand-bg: var(--yz-gold-2);
-  --vp-button-brand-hover-bg: var(--yz-gold-1);
-  --vp-button-brand-active-bg: var(--yz-gold-1);
-  --vp-button-brand-text: #fffaf0;
-  --vp-button-brand-hover-text: #fffaf0;
+  --vp-button-brand-bg: var(--yz-brand-2);
+  --vp-button-brand-hover-bg: var(--yz-brand-1);
+  --vp-button-brand-active-bg: var(--yz-brand-1);
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-hover-text: #ffffff;
 
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(120deg, #b88d3a 10%, #e0b862 45%, #0e9fb5 95%);
+  --vp-home-hero-name-background: var(--yz-cloud);
 
   --vp-font-family-mono: "JetBrains Mono", "Cascadia Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --vp-layout-max-width: 1440px;
 }
 
 .dark {
-  --yz-gold-1: #f0d8a8;
-  --yz-gold-2: #d3bc8e;
-  --yz-gold-3: #b89c66;
-  --yz-gold-soft: rgb(240 216 168 / 12%);
-  --yz-cyan: #4fd6e8;
-  --yz-cyan-soft: rgb(79 214 232 / 12%);
-  --yz-violet: #a594ff;
-  --yz-glow: rgb(240 216 168 / 20%);
-  --yz-grid: rgb(200 220 255 / 6%);
+  --yz-brand-1: #a9b6ff;
+  --yz-brand-2: #8a9bff;
+  --yz-brand-3: #6b7dff;
+  --yz-brand-soft: rgb(138 155 255 / 13%);
+  --yz-sky: #4fd3fb;
+  --yz-sky-soft: rgb(79 211 251 / 12%);
+  --yz-violet: #b98cff;
+  --yz-pumpkin: #ffa95c;
+  --yz-pumpkin-soft: rgb(255 169 92 / 13%);
+  --yz-glow: rgb(138 155 255 / 22%);
+  --yz-grid: rgb(170 190 255 / 6%);
+  --yz-cloud: linear-gradient(120deg, #4fd3fb, #8a9bff 55%, #c48dff);
+  --yz-ember: linear-gradient(120deg, #ffd36b, #ffa95c 50%, #ff7a6b);
 
-  --vp-c-bg: #0b0e16;
-  --vp-c-bg-alt: #080a11;
-  --vp-c-bg-soft: #131826;
-  --vp-c-bg-elv: #141a29;
-  --vp-c-divider: #1f2638;
-  --vp-c-gutter: #070910;
+  --vp-c-bg: #0a0f1f;
+  --vp-c-bg-alt: #070b18;
+  --vp-c-bg-soft: #11172b;
+  --vp-c-bg-elv: #141b33;
+  --vp-c-divider: #1f2742;
+  --vp-c-gutter: #060a15;
 
-  --vp-c-tip-1: var(--yz-cyan);
-  --vp-c-tip-2: #7be3f0;
-  --vp-c-tip-3: #a6eef6;
+  --vp-c-tip-1: var(--yz-sky);
+  --vp-c-tip-2: #86e1fd;
+  --vp-c-tip-3: #b3ecfe;
 
-  --vp-button-brand-bg: var(--yz-gold-2);
-  --vp-button-brand-hover-bg: var(--yz-gold-1);
-  --vp-button-brand-active-bg: var(--yz-gold-3);
-  --vp-button-brand-text: #1a1408;
-  --vp-button-brand-hover-text: #1a1408;
+  --vp-button-brand-bg: var(--yz-brand-2);
+  --vp-button-brand-hover-bg: var(--yz-brand-1);
+  --vp-button-brand-active-bg: var(--yz-brand-3);
+  --vp-button-brand-text: #0a0f2a;
+  --vp-button-brand-hover-text: #0a0f2a;
 }
 
-/* ─────────────── 滚动条：页面、侧栏、目录、代码块与表格统一成细的金色滑块 ─────────────── */
+/* ─────────────── 滚动条：页面、侧栏、目录、代码块与表格统一成细的蓝色滑块 ─────────────── */
 
 :root {
-  --yz-sb-thumb: rgb(122 92 31 / 28%);
-  --yz-sb-thumb-hover: rgb(122 92 31 / 55%);
+  --yz-sb-thumb: rgb(51 70 214 / 24%);
+  --yz-sb-thumb-hover: rgb(51 70 214 / 50%);
 }
 
 .dark {
-  --yz-sb-thumb: rgb(240 216 168 / 22%);
-  --yz-sb-thumb-hover: rgb(240 216 168 / 50%);
+  --yz-sb-thumb: rgb(169 182 255 / 22%);
+  --yz-sb-thumb-hover: rgb(169 182 255 / 48%);
 }
 
 /* Firefox 只认这两项；Chromium 121 起两套都认且以这两项为准，故 webkit 那套放进 @supports 里只给 Safari 与旧版 */
@@ -134,7 +142,7 @@ html,
   scrollbar-color: var(--yz-sb-thumb-hover) transparent;
 }
 
-/* ─────────────── 页头：无侧栏的页面（首页滚动后）半透明毛玻璃，下沿一道金青渐变细线 ─────────────── */
+/* ─────────────── 页头：无侧栏的页面（首页滚动后）半透明毛玻璃，下沿一道青蓝紫渐变细线 ─────────────── */
 
 @media (min-width: 960px) {
   .VPNavBar:not(.has-sidebar):not(.home.top) {
@@ -144,7 +152,7 @@ html,
   }
 
   .VPNavBar:not(.home.top) .divider-line {
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--yz-gold-3) 45%, transparent) 30%, color-mix(in srgb, var(--yz-cyan) 45%, transparent) 70%, transparent) !important;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--yz-sky) 45%, transparent) 25%, color-mix(in srgb, var(--yz-brand-2) 45%, transparent) 50%, color-mix(in srgb, var(--yz-violet) 45%, transparent) 75%, transparent) !important;
   }
 }
 
@@ -206,7 +214,7 @@ html,
   width: 6px;
   height: 6px;
   border-radius: 2px;
-  background: linear-gradient(135deg, var(--yz-gold-2), var(--yz-cyan));
+  background: var(--yz-cloud);
   flex: none;
 }
 
@@ -215,7 +223,7 @@ html,
 }
 
 .VPSidebarItem.is-active > .item > .indicator {
-  background: linear-gradient(180deg, var(--yz-gold-2), var(--yz-cyan));
+  background: linear-gradient(180deg, var(--yz-sky), var(--yz-brand-2), var(--yz-violet));
   box-shadow: 0 0 10px var(--yz-glow);
   width: 3px;
   border-radius: 3px;
@@ -226,7 +234,7 @@ html,
 .vp-doc h1 {
   font-weight: 800;
   letter-spacing: -0.01em;
-  background: linear-gradient(110deg, var(--vp-c-text-1) 40%, var(--yz-gold-2) 75%, var(--yz-cyan));
+  background: linear-gradient(110deg, var(--vp-c-text-1) 40%, var(--yz-brand-2) 72%, var(--yz-violet));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -246,7 +254,7 @@ html,
   height: 3px;
   margin-bottom: 14px;
   border-radius: 3px;
-  background: linear-gradient(90deg, var(--yz-gold-2), var(--yz-cyan));
+  background: var(--yz-cloud);
 }
 
 .vp-doc a {
@@ -295,7 +303,7 @@ html,
 }
 
 .dark .vp-doc div[class*="language-"] {
-  background: #0f1420;
+  background: #0e1428;
 }
 
 .vp-doc .custom-block {
@@ -304,11 +312,11 @@ html,
 }
 
 .vp-doc .custom-block.tip {
-  border-color: var(--yz-cyan);
+  border-color: var(--yz-sky);
 }
 
 .vp-doc .custom-block.warning {
-  border-left-color: #d9a12b;
+  border-left-color: #e0a12b;
 }
 
 .vp-doc .custom-block.danger {
@@ -327,7 +335,7 @@ kbd {
 }
 
 ::selection {
-  background: var(--yz-gold-soft);
+  background: var(--yz-brand-soft);
 }
 
 /* ─────────────── 步骤条：<div class="steps"> 里的每个 h3 是一步 ─────────────── */
@@ -359,7 +367,7 @@ kbd {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--yz-gold-2), var(--yz-cyan));
+  background: var(--yz-cloud);
   color: var(--vp-c-bg);
   font-size: 15px;
   font-weight: 800;
