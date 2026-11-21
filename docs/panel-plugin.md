@@ -472,7 +472,17 @@ import dayjs from "./vendor/dayjs.js"   // ✓ 是一个相对 URL，落在本�
 `Authorization` 头，一旦要求鉴权，面板插件这套机制就不成立。
 
 于是：凡能连上面板端口的人都读得到你的面板插件文件。**不要在里面写任何令牌、密钥或
-Cookie。** 取数一律走 `api.get` 或 `api.own`，令牌由面板那边带上，不经过你的文件。
+Cookie。**
+
+包目录里只有浏览器要的那几类文件对外可取：js / mjs / css / json / map、图片与字体。点开头的文件与目录
+（`.git`、`.env`）、`node_modules` 下的一切、锁文件、TypeScript 源码一律 404 —— 商店 git clone 下来的
+目录整个落在这里，私有仓的克隆地址就写在 `.git/config` 里。要给浏览器用的第三方库，放进包里一个普通目录
+（如 `vendor/`）。 取数一律走 `api.get` 或 `api.own`，令牌由面板那边带上，不经过你的文件。
+
+**node 侧不对外**：`package.json` 一律不给；声明了 `webuiPanel.server` 时，那个文件不给，它若在子目录里
+（如 `server/index.js`、`dist/index.js`）则整个子目录都不给 —— 浏览器要的文件别和 node 侧放在同一个子目录。
+判越界按真实路径：包里一个指向包外的符号链接取不到（包目录本身可以是链接）。SVG 带 `sandbox` 的 CSP，
+直接打开它的地址时里面的脚本不跑；当 `<img>` 与 CSS 背景用不受影响。
 
 若你的数据本身敏感，把它放在 node 那半的端点后面（那些路由默认鉴权），
 浏览器这半只负责画。

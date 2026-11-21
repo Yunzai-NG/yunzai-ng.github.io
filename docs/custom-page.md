@@ -28,7 +28,13 @@ plugins/my-plugin/
    └─ index.html         页面本体，缺省找这个名字
 ```
 
-`webadapter/` 整个目录作为静态资源发出，里面的 css、js、图片都可以直接相对引用。
+`webadapter/` 里的页面、css、js、图片、字体与 json 都发得出去，可以直接相对引用。**不发**的有：
+node 侧入口 `index.js` / `index.mjs`、任何以 `.` 开头的文件或目录、`node_modules`、`package.json` 与锁文件。
+页面脚本不要命名为 `index.js`（那个名字留给 node 侧），起个别的名字，如 `page.js`。
+
+页面带 `Content-Security-Policy: sandbox allow-scripts allow-forms`，与面板里那个 iframe 的 sandbox 一致：
+有人直接打开页面地址时它也是不透明源，读不到面板的 localStorage（令牌在那里）。取数一律走[数据桥](#读面板的数据)，
+不要在页面里直接 `fetch` 面板接口。
 
 内核插件的目录名会直接进 URL，故**只许字母、数字与 `. _ -`**；`我的插件/` 一类会被跳过并记一条警告。
 
@@ -225,6 +231,9 @@ SDK 是经典脚本而不是 ES 模块：iframe 的源不透明，`<script type=
 
 `overview`、`system`、`plugins`、`commands`、`tasks`、`middlewares`、`renderers`、
 `adapters`、`accounts`、`server`
+
+`accounts` 交给页面前会剥掉每一项的 `record.config` —— 那里是适配器的连接密钥（AppSecret、token），
+状态、`selfId`、备注照给。
 
 ::: warning 配置不在白名单里，且不会加进来
 内核的 `GET /api/config/:name` **刻意不脱敏**（面板必须能显示与轮换令牌、显示适配器的连接密钥），

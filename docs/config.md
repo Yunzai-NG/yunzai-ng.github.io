@@ -38,17 +38,38 @@
 
 `fileLevel` 留空即**记全部**（trace），不跟随 `level`：调低级别是为了少看，而没落盘的历史
 补不回来 —— 复现不了的缺陷正靠它翻回去查。于是面板上把级别调到 debug，之前那段 debug 也在。
-要少记才显式填 `fileLevel`。
+要少记才显式填 `fileLevel`。内核入站消息日志保留账号、场景、发送者和消息段数，不记录正文。
 
-其余：`color`、`keepDays` 14、`maxSize` 8（MB）、`maxFiles` 100。
+其余：`color`、`keepDays` 14、`maxSize` 8（MB）、`maxFiles` 100。轮转参数重载后从下一次滚动起生效；`color` 开启时仍尊重终端能力和 `NO_COLOR`。
 
 ### 存储 `store`
 
-`driver`：`auto`（默认，优先使用内嵌 level，无法装载时回退至 JSON）/ `level` / `json`（纯 JS
-实现，Termux 上最为稳定）/ `memory`（重启即丢失，供测试使用）。`dir` 留空则使用 `data/store/`。
-`sqlite` 默认开启，原生模块不可用时自动降级为纯 KV。
+KV 数据存在 `dir`（留空即 `data/store/`）下的 **`kv.db`** 一个文件里，格式是 SQLite。这个文件在 Windows、
+Linux、macOS 与安卓之间通用，换机器直接拷，见[搬到另一台机器](#搬到另一台机器)。
 
-Redis 不在此处 —— 它是可选的 KV 驱动插件。旧框架硬依赖 Redis，未部署即无法启动。
+`driver`：`sqlite`（默认）/ `memory`（重启即丢失，只供测试）。旧配置里的 `auto` / `level` / `json` 照收，
+都当 `sqlite`，不必手动改。读写 `kv.db` 用 better-sqlite3，它装不上时改用 Node 自带的 `node:sqlite`
+（Node 22.13 起）；两者读写同一种文件。两者都不可用时**启动直接报错**，不会退到内存 —— 那样每次重启账号与插件数据全丢。
+
+`sqlite` 管的是**插件 SQL 库**（插件自己建表的那种，落在 `data/sql/<插件>/`），默认开启，需要 better-sqlite3；
+它装不上时，用到 SQL 的插件拿到一条错误说明，只用 KV 的插件不受影响。
+
+**旧版数据自动迁移。** 此前的版本把 KV 存在 `kv/`（LevelDB）或 `kv.json`（JSON）里。升级后首次启动时，
+内核把它们迁进 `kv.db`，核对条数一致后把原件改名为 `kv.migrated-<时间>` / `kv.json.migrated-<时间>` 保留，不删。
+迁移先写临时文件 `kv.db.migrating`，途中断电或被杀不会留下半截的 `kv.db`，下次启动重来。
+
+LevelDB 只有原生模块 classic-level 读得了。它在本机加载不了（安卓多半如此）时启动会报错并指路：
+回到原来那台机器上升级并启动一次完成迁移，或在那里 `yzng data export`。
+
+存储只由内核负责，没有 Redis 选项，插件也不能注册驱动接管存储：账号凭据与全部插件的数据同在一个库里。
+旧框架硬依赖 Redis，未部署即无法启动；这里不需要它。
+
+#### 搬到另一台机器
+
+- **同样跑新版内核的两台机器**：停掉实例，把 `config/` 与 `data/` 整个拷过去即可。`kv.db` 是普通文件，不挑系统。
+- **原机器还是旧版数据、或想要一份干净的副本**：用 [`yzng data export`](/cli#data) 导出，到新机器上 `yzng data import`。
+  导出不改动原机器上的任何文件，旧版数据在导出里已经转成 `kv.db`。
+- 配置里写死的绝对路径（`store.dir`、`plugins.dirs`、插件里的目录项）换了系统多半不对，`import` 会逐行列出来。
 
 ### 面板 `server`
 
@@ -77,7 +98,7 @@ Redis 不在此处 —— 它是可选的 KV 驱动插件。旧框架硬依赖 R
 ### 消息 `message`
 
 `cooldown` 全局冷却（0 表示不限，命令自身声明的值优先）、`splitLength` 3000（长文本切分，
-切点优先取换行与空白）、`sendTimeout` 30 秒、`sequential` true（同会话串行发送，
+切点优先取换行与空白）、`sendTimeout` 30 秒（发送超时与重连间隔须为 1～2147483647 毫秒）、`sequential` true（同会话串行发送，
 以保证到达顺序）、`concurrency`（命令处理并发上限，留空表示不限）。
 
 `concurrency` 是低内存设备最应调整的一项：设为 2~4 可避免多张图同时渲染耗尽内存；
@@ -174,8 +195,10 @@ NapCat 的号连不上多半是配置写错了，重试几次就该停；连远�
 
 ### 网络 `net`
 
-`proxy`（留空则读取 `HTTPS_PROXY` / `HTTP_PROXY`）、`timeout` 20 秒、`retry` 2
-（仅对幂等请求与网络层错误重试）、`userAgent`。
+`proxy`（未配置时按目标协议读取 `HTTPS_PROXY` / `HTTP_PROXY`，缺省退回 `ALL_PROXY`；环境代理支持小写变量、`NO_PROXY` 的主机/域名、可选端口与 `*`，并绕过回环地址）、`timeout` 20 秒（`download()` 与流式读取只限到响应头，
+之后按两次收到数据的间隔计，大文件不会下到一半被掐断）、`retry` 2
+（只对 GET / HEAD / OPTIONS / PUT / DELETE 生效；POST 与 PATCH 重发会让对方执行两遍，缺省不重试，
+插件确需重试时在那一次请求上写 `retry`）、`userAgent`。
 
 ## 面板
 
@@ -193,25 +216,32 @@ NapCat 的号连不上多半是配置写错了，重试几次就该停；连远�
    **不读取查询串与 Cookie** —— 由此免疫 CSRF，亦不会将令牌留存于浏览器历史与
    反向代理日志中。
 3. **比较使用 `timingSafeEqual`**，而非 `===`。
-4. **令牌恒于启动阶段生成**：`server.token` 为空时生成 16 位字母数字，写入配置文件并
-   输出至日志（首次打开面板须从日志里抄入）。**与监听地址无关** —— 早先仅监听本机时不生成，
+4. **令牌恒于启动阶段生成**：`server.token` 为空时生成 16 位字母数字，写入配置文件；启动日志只提示位置，不输出令牌。**与监听地址无关** —— 早先仅监听本机时不生成，
    理由是「单机部署不该为打开面板先抄一串随机字符」，但那让本机部署处在一种没有门的状态：
    使用者浏览器里的任何页面都能向 `127.0.0.1:2536` 发请求，而那正是面板的全部写权限。
 
    令牌抄丢了可经 `POST /api/token/reveal` 重新打进日志一次（面板令牌页有一枚按钮）。
    该端点**不鉴权**（需要它的人恰恰没有令牌）、只放行本机对端，且**响应体一个字节都不带
    令牌** —— 带上就等于任何本机页面都能取到写权限。
-5. **令牌被手工清空时仅接受本机请求**：来自其他地址的请求一律 401 并说明须设置
-   `server.token`。这是兜底路径，正常启动过后不会走到。非本机监听而令牌短于 16 位时输出 warn。
-6. **只读模式**（`server.readonly`）：面板可查看但不可修改。
-7. **鉴权失败限流**：同一个外部地址 10 分钟内令牌错满 30 次，暂时拒绝它 15 分钟（429，带
+5. **令牌被清空时立即补一个**：运行中经面板或手改文件把 `server.token` 清空，内核当场重新生成但不向日志输出令牌。
+   补上之前的那一瞬只接受本机对端，且 `Host` 必须是 `localhost` / `127.0.0.1` / `[::1]`（挡 DNS 重绑定：
+   恶意域名被解析到 127.0.0.1 时，浏览器把它当同源）。非本机监听而令牌短于 16 位时输出 warn。
+6. **别的网页发来的写请求与 WebSocket 握手一律 403**：判据是浏览器自填的 `Sec-Fetch-Site`
+   （须为 `same-origin` 或 `none`，经反向代理也不变），旧浏览器退回比 `Origin` 与 `Host`。
+   写请求带请求体时必须声明 `Content-Type: application/json`：不声明类型的请求体同样能被别的网页造出来。
+   脚本、curl 一类的客户端不带这几个头，不受影响。
+7. **只读模式**（`server.readonly`）：面板可查看但不可修改。
+8. **鉴权失败限流**：同一个外部地址 10 分钟内令牌错满 30 次，暂时拒绝它 15 分钟（429，带
    `Retry-After`），封禁期间带对令牌也不放 —— 不然猜中的那一次照样进得来。本机地址不计：
    经反向代理进来的请求对端都是本机，那时限流交给代理做。
-8. **基础安全响应头**：每个响应带 `X-Content-Type-Options: nosniff` 与 `Referrer-Policy: no-referrer`；
+9. **基础安全响应头**：每个响应带 `X-Content-Type-Options: nosniff` 与 `Referrer-Policy: no-referrer`；
    HTML 另带 `X-Frame-Options: SAMEORIGIN` 与 `Content-Security-Policy: frame-ancestors 'self'`，
    别的网站因此不能把面板嵌进自己的页面骗人点「删除」。处理函数自己给了这两个头时以它的为准，
    要被别处嵌入的插件页可以这样放行。
-9. **监听在非本机地址时启动日志提醒一次**：本服务器不提供 HTTPS，令牌会明文经过网络。
+10. **监听在非本机地址时启动日志提醒一次**：本服务器不提供 HTTPS，令牌会明文经过网络。
+
+`auth: false` 的路由（适配器 webhook）不过第 6 条：它们本就是给外部程序调的，各自验签。
+不该被网页调用的那种，插件可用内核导出的 `isBrowserRequest(req.headers)` 自己挡，adapter-onebot 即如此。
 
 ### 暴露到公网
 
@@ -295,13 +325,13 @@ POST   /api/token/reveal                把当前令牌重新打进日志（仅�
 Termux 与小内存 VPS 推荐以下配置：
 
 ```yaml
-store:
-  driver: json        # 纯 JS 实现，不需要原生模块
 message:
   concurrency: 2      # 修改后需重启
 render:
   scale: 1
 ```
+
+存储不用改：better-sqlite3 编译不过时内核自动用 Node 自带的 `node:sqlite`，要求 Node 22.13 及以上（Termux 的 `nodejs` 包满足）。
 
 另将 renderer-puppeteer 的 `pages` 设为 1、`restartAfter` 调小（如 50）。
 实测数据见[性能基线](perf.md)。
@@ -311,3 +341,7 @@ render:
 启动后内核将监听配置目录。修改文件，或经面板与 API 修改，均会触发 `onChange`，
 **回调附带变更路径**，因此插件可仅失效受影响的部分。旧框架的 `mergedCache`
 在任何变动时整体 `clear()`。少数配置项标注为需重启生效，面板中会予以说明。
+
+### 日常消息日志（mark）
+
+`debug < mark < info`。普通平台消息在当前分发结束时归类：没有被命令、等待回复或中间件消费，也没有通过 `e.reply()` 尝试回复，则记灰色 `mark`。仅旁听统计不算响应。消息正文不会因此进入日志。默认 `info` 控制台不显示 `mark`；设置 `log.consoleLevel: mark` 可看日常消息而不打开 debug。文件级别和面板筛选独立。

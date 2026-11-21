@@ -97,7 +97,7 @@ yunzai-ng/
 | `pipeline/` | 中间件、命令路由与冷却 | 路由按首字符分桶，不再逐条消息线性执行全部正则 |
 | `adapter/` | 账号记录、驱动生命周期、交互式登录会话 | 内核不知晓 QQ 的存在，仅知晓某插件能将一份账号配置转为可收发消息的驱动 |
 | `message/` | 消息段模型、长文本切分、发送目标 | 段模型与平台解耦，编解码位于适配器内 |
-| `store/` | KV（level / json / memory）与 SQLite | Redis 降级为可选驱动插件，接口一致即可替换 |
+| `store/` | KV（一个 SQLite 文件 `kv.db`，或测试用的内存）与插件 SQL 库 | 只归内核，插件不能接管；旧版 LevelDB / JSON 只读迁移 |
 | `config/` | Schema 生成 YAML、表单与校验 | 一份声明驱动三处，不存在"修改校验而遗漏表单"的情形 |
 | `logger/` | 分级、滚动与尾部缓冲 | 每插件一份 child logger，自动附带插件名；文件行为每行一个 JSON，无第三方依赖 |
 | `server/` | 共享 HTTP 服务器 | 同时承载面板、`ctx.route` 与适配器 webhook；令牌经请求头传递 |
@@ -221,7 +221,7 @@ Disposer → 事件总线 → SQL → KV → HTTP 连接池 → 配置监听 →
 | 使用其他插件的能力 | `import { MysInfo } from "../../genshin/model"` | `ctx.inject("mihoyo.api")` |
 | 接入新协议 | 修改 `lib/bot.js` 或覆写 `global.Bot` | 编写插件并调用 `ctx.registerAdapter(provider)` |
 | 更换渲染器 | 修改 `lib/renderer/` | 编写插件并调用 `ctx.registerRenderer(provider)` |
-| 使用 Redis | 内核硬依赖 | 安装 KV 驱动插件并调用 `ctx.registerKvDriver(driver)` |
+| 使用 Redis | 内核硬依赖 | 不需要；存储只由内核负责，插件不能接管 |
 
 ## 分层约束的验证方式
 

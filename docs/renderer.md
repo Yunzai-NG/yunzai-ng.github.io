@@ -159,3 +159,5 @@ Android 设备与小内存 VPS 上按以下三项调整：`render.scale` 保持�
 - [发消息](plugin/message.md) —— 出图之后怎么发，以及只出图不发的写法
 - [renderer-puppeteer](plugins/renderer-puppeteer.md) —— 官方渲染器的实现与配置项
 - [测试与发布](plugin/publish.md) —— 模板是纯函数，可直接快照测试
+
+可用性探测最多等待 5 秒；单次渲染超时设置更短时以较短者为准。首选渲染器探测超时后会尝试下一个候选。

@@ -4,7 +4,7 @@ title: 常见问题
 
 # 常见问题
 
-按你卡住的环节找。多数问题先跑一遍 `npx yzng doctor`：它检查 Node 版本、目录权限、配置文件语法、原生模块与端口，并指出哪一项不对，见 [CLI · doctor](/cli#doctor)。
+按你卡住的环节找。多数问题先跑一遍 `npx yzng doctor`：它检查 Node 版本、目录权限、配置文件语法、存储与端口，并指出哪一项不对，见 [CLI · doctor](/cli#doctor)。
 
 ## 安装与启动
 
@@ -18,6 +18,8 @@ title: 常见问题
 | `init` 时面板没装上 | 多为网络或没装 Git。初始化本身已完成；给 `market.mirror` 填镜像后在面板里装，或照终端给出的 `git clone` 命令手动装，见 [CLI · 安装官方面板](/cli#安装官方面板) |
 | 在子目录里启动后「账号和插件都没了」 | 0.5.0 之前会在那里现建第二个实例。升级后会向上找已有实例；误建的目录可直接删掉 |
 | 以服务 / 开机自启方式启动，数据跑到了别处 | 那些场景下工作目录不是项目目录，必须设环境变量 `YZNG_HOME`，见[让它一直跑着](/deploy) |
+| 启动报「KV 存储需要 SQLite」 | better-sqlite3 没装上，Node 又低于 22.13（没有自带的 `node:sqlite`）。在实例目录重新安装依赖，或升级 Node，见[配置项 · 存储](/config#存储-store) |
+| 启动报「是旧版 LevelDB 数据…classic-level」 | 把旧数据直接拷到了读不了 LevelDB 的机器上（多见于安卓）。回原机器升级并启动一次完成迁移再拷，或在原机器 `yzng data export`，见 [CLI · data](/cli#data) |
 
 ## 面板
 
@@ -25,6 +27,7 @@ title: 常见问题
 |---|---|
 | 浏览器打不开 `127.0.0.1:2536` | 机器人没在跑，或端口被占用（启动日志里有说明）。面板与收发消息相互独立，端口冲突不影响机器人 |
 | 打开后只有 `/api`，没有页面 | 没装面板插件 webui。在 `init` 时选装，或照 [CLI · 安装官方面板](/cli#安装官方面板) 补装 |
+| 局域网 IP 能打开，`localhost` 却回「路由 / 不存在」 | 本机另一个进程在 `127.0.0.1` 上占了同一端口（Windows 允许它与 `0.0.0.0` 并存），浏览器连到了它。停掉那个进程，或给其中一方换 `server.port`；新版内核遇到这种情况会拒绝监听并在日志里写明 |
 | 令牌找不到了 | 打开 `config/yunzai.yaml`，`server.token` 就是；也可以直接改成自己记得住的值 |
 | 能打开但改不了任何东西 | `server.readonly` 开着 |
 | 手机 / 别的电脑打不开 | 缺省只监听本机。改 `server.host` 为 `0.0.0.0` 后重启，见[安装与启动](/getting-started#打开面板) |
@@ -63,5 +66,6 @@ title: 常见问题
 | `#关机` 之后又被拉起来 | pm2 没配 `stop_exit_codes: [0]`，见[部署 · pm2](/deploy#用-pm2) |
 | Termux 熄屏后机器人掉线 | 安卓杀了后台。通知栏点「Acquire wakelock」，并允许 Termux 后台运行 |
 | 内存一直涨 | 先看 heap 而不是 RSS —— RSS 只表示历史最高水位，不会回落，见[性能基线 · 内存](/perf#内存) |
+| 换电脑 / 搬到手机 | 停掉实例后拷 `config/` 与 `data/`；原机器还是旧版数据时用 `yzng data export` / `import`，见[配置项 · 搬到另一台机器](/config#搬到另一台机器) |
 
 还没解决？到 [GitHub](https://github.com/Yunzai-NG) 对应仓库提 issue，附上 `npx yzng doctor` 的输出与相关日志（`logs/` 目录下，发出前删掉令牌）。

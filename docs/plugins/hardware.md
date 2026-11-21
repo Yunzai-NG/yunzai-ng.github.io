@@ -78,6 +78,8 @@ webui 撤掉的本进程 CPU 环与显卡环，否则升级后的概览页会**�
 **采样拆成六条路由而不是一条大的。** 没上板的组件一次请求都不发；合成一条的话，只想看 CPU 的人
 也要为进程表付一次 `si.processes()`。
 
+系统清单中的发行版和机型分别缓存；未探到的项最早在一分钟后的下一次采样重试，不阻塞主机名、运行时长等即时数据。
+
 **采样的代价按平台各自压。** systeminformation 在 Windows 上每个调用起一个 PowerShell（0.5–0.8 秒），
 在 Linux 上读进程表要先跑 `ps` 再逐进程 `cat`。故网卡累计量在 Windows 上由一个 PowerShell 一次读完
 （si 每张网卡各起一个，实测快约 6 倍），Linux 上直读 `/proc/net/dev` 与 `/proc/<pid>/stat`，读不到
@@ -121,3 +123,5 @@ webui 撤掉的本进程 CPU 环与显卡环，否则升级后的概览页会**�
 | `src/procfs.ts` | Linux 上直读 `/proc` 的进程表与网卡累计量 |
 | `src/throttle.ts` | 限频与并发合并 |
 | `package.json` 的 `webuiPanel` | node 侧入口路径与配置声明 |
+
+完整规格首次探测若全部失败，不会永久记作空清单；一分钟后再次查看会重试。

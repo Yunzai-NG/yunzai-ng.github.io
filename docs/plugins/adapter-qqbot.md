@@ -14,8 +14,8 @@
 1. 在 [QQ 开放平台](https://q.qq.com) 注册开发者账号并创建机器人应用
 2. 记下 **AppID** 与 **AppSecret**（应用管理 → 开发设置）
 3. 选连接方式：
-   - **WebSocket Gateway**（推荐）：框架主动连 QQ 的 Gateway
-   - **Webhook 回调**：QQ 把事件 POST 给你，需要公网 HTTPS 地址
+   - **WebSocket Gateway**：框架主动连 QQ 的 Gateway，不需要公网地址。官方 SDK 已说明 WebSocket 推送将逐步下线
+   - **Webhook 回调**：QQ 把事件 POST 给你，需要公网 HTTPS 地址；有条件的建议用这个
 
 调试期可以在应用管理里开**沙箱模式**。
 
@@ -55,10 +55,18 @@ pnpm run build
 | 模板参数键 | 按顺序填模板参数 key，如 `abcdefghij` | abcdefghij |
 | 键盘模板 ID | 留空则按消息按钮内容生成键盘 | 留空 |
 | 转发消息格式 | 合并 或 多条 | 合并 |
-| 图片压缩上限 | sharp 可用时压缩超限图片，单位 MiB | 4 |
-| 图床脚本路径 | 自定义图床 JS 脚本，用于 Markdown 图片 | 留空 |
-| 文件服务地址 | Markdown 图片内置文件路由的对外基址 | 留空 |
+| 官方图床 | 图片先传到 QQ 素材库换 `qqbot-media://` 引用，不依赖公网地址 | 开启 |
+| 文件服务地址 | 框架图床（内置文件路由）的对外基址，必须公网可达 | 留空 |
+| 频道图片压缩上限（MiB） | 仅控制频道图片；群聊和单聊按 20 MiB 软限、Markdown 素材库按 10 MiB 处理；缺少 sharp 时原样发送 | 4 |
+| 图片保存时间 | 官方素材的保留秒数，也是定时清理的依据 | 14400 |
 | Webhook 监听路径 | Webhook 模式接收事件的路径 | /qqbot |
+
+旧配置里的「图床类型」「图床脚本路径」已移除（0.4.0），打开面板保存一次即自动迁移：选过框架图床的按关闭官方图床处理，
+脚本路径直接丢弃，自定义图床改由插件提供，见[自定义图床](#自定义图床)。
+
+配套内核下，`e.reply()` 以触发事件的消息 ID 被动回复；`quote` 只控制可见引用。拆成多条时每条保留原回复 ID，只有首条显示该引用。直接调用 `bot.sendMessage()` 且不指定回复或引用时是主动推送，不借用会话中最近的消息 ID。
+
+WebSocket 就绪后或恢复会话时，若平台返回 4914（下架）、4915（封禁）等致命关闭码，配套内核清理连接并保留错误，不再自动重连；处理平台问题后可在面板手动重连。
 
 ## 事件订阅预设
 
@@ -75,6 +83,16 @@ pnpm run build
 ::: warning 公域与私域不能同时订阅
 这是 QQ 开放平台的限制，不是插件的。
 :::
+
+每个预设另附 INTERACTION（按钮回调），只用官方事件表里有的位。订阅了没权限的位，平台以 4013 / 4014 关掉连接 ——
+INTERACTION 被拒时插件去掉它重新鉴权一次，日志里有一条警告，此时按钮回调收不到。
+
+## 断线与重连
+
+- 网关地址取自 `GET /gateway`，取不到才用写死的地址；心跳周期取平台 Hello 里给的值
+- 就绪之后断线：先**恢复会话**（Resume），平台补发断线期间的事件，内核看不到这次断线；恢复不成才报下线，由内核按退避重连
+- 4914（已下架）、4915（已封禁）以及 4001、4002、4010~4014：重连也没用，账号停在「错误」、不再自动重连，处理后在面板点「重连」
+- 内核关了 HTTP 服务（`server.enable: false`）时插件照常加载，只是 Webhook 与框架图床不可用
 
 各预设能收到哪些事件，见仓库的 [docs/EVENTS.md](https://github.com/Yunzai-NG/adapter-qqbot/blob/main/docs/EVENTS.md)。
 
@@ -95,40 +113,41 @@ pnpm run build
 QQ 的 Markdown 消息走不了富媒体接口，图片得先转成公网地址，再以
 `![摘要 #宽px #高px](url)` 嵌入（QQ 要求显式声明尺寸，插件会自动解析宽高）。
 
-通道按优先级选：**图床脚本** → **内置文件服务**。两个都不可用时图片降级为文本占位，日志里有告警。
+通道按顺序取，前一级不可用才走下一级：**自定义图床** → **官方图床** → **框架图床**。全都不可用时图片降级为文本占位，
+日志里逐级说明原因。
 :::
 
-### 内置文件服务
+### 自定义图床
 
-没配图床脚本时，图片发布到 `/plugin/adapter-qqbot/file/:name` 供 QQ 服务器拉取：
-
-- **文件服务地址**填该路由的对外基址。留空则用内核面板的公网地址，也可以填内网穿透域名
-- 文件留 5 分钟、最多 100 个，超限自动淘汰
-- 填了回环地址（`localhost` / `127.0.0.1`）会告警 —— QQ 的服务器拉不到你本机的回环地址
-
-### 图床脚本
-
-配了**图床脚本路径**后优先走它。脚本要求：
-
-- 导出一个函数（`export default` 或 `export function upload`）
-- 收 `data`（图片 Buffer）与 `options`（`{ filename, mimeType }`）
-- 返回 `Promise<string>`，即公网 URL
+**方向是插件提供、适配器调用。** 在你的插件里实现一个函数，用 `ctx.provide` 交出来；适配器需要地址时先问它：
 
 ```js
-// D:\my-image-host.js
-export default async function upload(data, options) {
-  const form = new FormData()
-  form.append("files", new File([data], options.filename ?? "image.png", {
-    type: options.mimeType ?? "image/png"
-  }))
-
-  const res = await fetch("https://图床地址/upload", { method: "POST", body: form })
-  const result = await res.json()
-  return result.data[0]
-}
+export default definePlugin({
+  name: "my-image-host",
+  setup(ctx) {
+    ctx.provide("qqbot.imageToUrl", async (file, opts) => {
+      // file：http(s) 链接 / 绝对路径 / base64:// 是字符串，渲染产物是 Buffer；opts：{ filename?, mime? }
+      const url = await uploadToMyCdn(file, opts)
+      return url // 返回 http(s):// 或 qqbot-media://；空值或抛错表示交给下一级
+    })
+  }
+})
 ```
 
-上传失败时自动降级到内置文件服务。
+每次取址都现查服务表，插件后加载、热重载、卸载立刻生效。
+
+### 官方图床
+
+图片先上传到 QQ 素材库，Markdown 里引用平台返回的 `qqbot-media://` 链接，**不依赖公网地址**。平台限制：单张 ≤10MB、
+仅 png / jpeg / gif / webp、**单机器人 100 张**。插件按「图片保存时间」定时清理旧素材释放配额，删除不影响已发出的消息。
+
+### 框架图床
+
+图片发布到 `/plugin/adapter-qqbot/file/:name` 供 QQ 服务器拉取：
+
+- **文件服务地址**填该路由的对外基址，留空用内核面板的公网地址
+- **必须公网可达**：回环、`10.x` / `172.16-31.x` / `192.168.x`、`*.local` 与单标签主机名一律跳过 —— QQ 拉不到，发出去是裂图
+- 文件留 5 分钟、最多 100 个，超限自动淘汰
 
 ## 富媒体与转发
 
@@ -171,11 +190,6 @@ URL、原始文件名与大小，接收时不下载，由使用方按需处理�
 
 开启后 WebSocket 连 `wss://sandbox.api.sgroup.qq.com/websocket`，API 走
 `https://sandbox.api.sgroup.qq.com`，只收沙箱环境的测试事件。
-
-## 增强依赖
-
-`sharp`（图片压缩）、`qrcode`、`silk-wasm`（语音转码）都是可选依赖，没装则对应增强自动降级，
-基础收发不受影响。
 
 ## 源码与细节文档
 

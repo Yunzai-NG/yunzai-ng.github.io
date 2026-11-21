@@ -199,7 +199,7 @@ await maint.requestRestart({ reason: `主人 ${e.sender.uid} 通过指令重启`
 ctx.logger.info("已加载 %d 条数据", n)
 ```
 
-`ctx.logger` 自动带插件名，级别 `trace` / `debug` / `info` / `warn` / `error` / `fatal`。
+`ctx.logger` 自动带插件名，级别 `trace` / `debug` / `mark` / `info` / `warn` / `error` / `fatal`。
 面板的日志页与 `logs/` 下的滚动文件是同一份输出。
 
 **排障时记 `e.id`** —— 这个标识贯穿一次事件处理的全过程，能把散在各处的日志串起来。
@@ -208,3 +208,5 @@ ctx.logger.info("已加载 %d 条数据", n)
 
 - [测试与发布](publish.md) —— 怎么测，怎么让别人装上
 - [插件市场](../market.md) —— 索引格式与自建索引
+
+`ctx.logger.mark("已跳过未变化的记录")` 写灰色日常日志（数值 25）。它不再等价于 `info`；希望默认控制台一定看见的信息请用 `info`。

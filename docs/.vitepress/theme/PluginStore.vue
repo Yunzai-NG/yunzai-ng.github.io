@@ -32,7 +32,14 @@ interface Entry {
  * @returns 可点开的地址；两者都没有时 undefined
  */
 function linkOf(p: Entry): string | undefined {
-  return p.homepage ?? p.install?.url
+  for (const value of [p.homepage, p.install?.url]) {
+    if (!value) continue
+    try {
+      const url = new URL(value)
+      if (["https:", "http:"].includes(url.protocol)) return url.href
+    } catch { /* 尝试安装地址 */ }
+  }
+  return undefined
 }
 
 /** 索引所在仓库；两个 JSON 都在其根部 */

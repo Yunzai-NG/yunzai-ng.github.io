@@ -182,7 +182,7 @@ export default definePlugin({
 | `provide` / `inject` / `require` / `waitFor` | 插件间协作 | [任务与协作](plugin/service.md) |
 | `route` / `websocket` / `static` | 挂到共享 HTTP 服务器 | [任务与协作](plugin/service.md) |
 | `panel(dir)` | 接管站点根路径 | [任务与协作](plugin/service.md) |
-| `registerAdapter` / `registerRenderer` / `registerKvDriver` | 提供内核能力实现 | [适配器开发](adapter.md) |
+| `registerAdapter` / `registerRenderer` | 提供内核能力实现（存储不在此列，只归内核） | [适配器开发](adapter.md) |
 
 其余：`render()`、`sql()`、`cache()`、`resource()`、`onDispose()`、`pickBot()`。
 

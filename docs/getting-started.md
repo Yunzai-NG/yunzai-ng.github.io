@@ -38,8 +38,7 @@ $ npx yzng start
   INFO  plugin   插件 webui@0.6.0 已加载
   INFO  server   面板与插件路由已就绪：http://127.0.0.1:2536
   INFO  account  没有已启用的账号，等待在 WebUI 中添加
-! WARN  server   已自动生成面板访问令牌：Ab3dEf6hJk9mNp2q
-! WARN  server   首次打开面板须填入它。该令牌已写入配置项 server.token，可随时自行修改
+! WARN  server   已生成面板访问令牌，请在配置文件中查看 server.token
 
   Yunzai NG 已启动
 
@@ -200,7 +199,8 @@ const NEXT = [
 <Terminal title="Termux" :text="TERMUX" />
 
 ::: tip 手机上有几处不同
-- 存储引擎的原生模块在 Termux 上常编译不过。不影响安装（它们是可选依赖），但请在初始化之后把存储驱动设成 `json`，见[配置项 · 低内存设备](/config#低内存设备)。
+- 原生模块 better-sqlite3 在 Termux 上常编译不过。不影响安装（它是可选依赖），KV 存储会自动改用 Node 自带的 `node:sqlite`，不用改配置；用到插件 SQL 库的插件会报一条错误说明。见[配置项 · 存储](/config#存储-store)。
+- 从电脑搬数据过来：在电脑上 `yzng data export`，拷到手机上 `yzng data import`，见 [CLI · data](/cli#data)。
 - 出图用上面装的 `chromium`，不会自动下载浏览器，见 [renderer-puppeteer](/plugins/renderer-puppeteer)。
 - 熄屏后系统可能杀掉 Termux：在通知栏点 Termux 的「Acquire wakelock」，并在系统设置里允许它后台运行。
 :::
@@ -242,7 +242,7 @@ const NEXT = [
 
 看到「Yunzai NG 已启动」就成了。**这个终端窗口要一直开着**，关掉它机器人就停了；按 `Ctrl+C` 是正常停机。想让它在后台一直跑、开机自启，见[让它一直跑着](/deploy)。
 
-令牌只在首次启动时生成并打印，**抄下来**，下一步要用。上面那串是示例，你的不一样。
+交互终端的启动横幅会显示令牌；非交互或重定向输出时，请在 `config/yunzai.yaml` 查看 `server.token`。上面那串是示例，你的不一样。
 
 ### 打开面板
 

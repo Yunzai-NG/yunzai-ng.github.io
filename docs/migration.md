@@ -33,7 +33,7 @@
 | 日志 | `global.logger.info` | `ctx.logger.info`，自动带插件名 |
 | 接入新协议 | 修改 `lib/bot.js` 或改写 `global.Bot` | 编写插件并调用 `ctx.registerAdapter` |
 | 更换渲染器 | 修改 `lib/renderer/` | 编写插件并调用 `ctx.registerRenderer` |
-| 使用 Redis | 内核硬依赖 | 编写 KV 驱动插件并调用 `ctx.registerKvDriver` |
+| 使用 Redis | 内核硬依赖 | 不需要；存储只由内核负责，插件不能接管 |
 
 ## 逐段改写
 
@@ -117,8 +117,7 @@ await ctx.kv.set(`cookie:${uid}`, ck)          // 前缀 plugin:<插件名>: 由
 await ctx.kv.incr(`count:${e.sender.uid}`, 1, { ttl: "1d" })
 ```
 
-键前缀无须自行拼接，亦不再需要安装 Redis。确需使用 Redis 时，编写一个实现 `KvDriver` 的
-插件即可，使用 KV 的代码无须改动。
+键前缀无须自行拼接，亦不再需要安装 Redis。存储只由内核负责，插件不能把它换成 Redis 或别的后端。
 
 ### 出图
 

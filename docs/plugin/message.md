@@ -37,6 +37,8 @@ await e.reply([seg.at("10001"), " 该你了"])   // @ 指定的人
 await e.reply(seg.atAll())                   // @ 全体成员
 ```
 
+`e.reply()` 会把原消息 ID 作为 `replyTo` 传给适配器，不等于显示引用。用 `quote` 指定可见引用时，内核拆分的每片都保留 `replyTo`，只有首片携带 `quote`。
+
 `at` 与 `quote` 可以一起给。`seg` 从内核导入：
 
 ```js
