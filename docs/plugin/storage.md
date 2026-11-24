@@ -114,6 +114,25 @@ await db.transaction(async tx => {
 
 `migrate` 按 version 记进度，重复调用是幂等的。这里刻意不带 ORM。
 
+## 临时文件
+
+`ctx.temp` 把文本、`Uint8Array`（含 `Buffer`）或 `{ url }` 写入实例的 `temp/plugins/<插件名>/`。字符串总是文本；`{ url }` 走插件的 HTTP 客户端，流式下载。不要把未经校验的用户输入当下载地址。
+
+```js
+const file = await ctx.temp.file(html, ".html")
+try {
+  await renderFile(file.path)
+} finally {
+  await file.remove()
+}
+
+const path = await ctx.temp.cached("map:v2", { url }, { ext: ".png", ttl: "5m" })
+```
+
+`file()` 每次返回独占文件；`cached()` 返回共享的只读绝对路径，不要修改或手动删除。键只在本插件实例内有效；内容、版本或使用者不同，就要换键。同键并发只写一次，从写入成功起算 TTL，命中不续期，失败可重试。到期后不再命中，无人访问的过期文件按分钟清理。
+
+插件正常卸载会清理剩余文件；强杀进程可能留下文件，停机后可删除。不要保存这些路径供下次启动使用：需要保留的文件请放 `ctx.dataDir`。
+
 ## 进程内缓存
 
 `ctx.cache` **必须声明上限**：

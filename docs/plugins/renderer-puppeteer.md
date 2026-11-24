@@ -64,6 +64,8 @@ puppeteer 调用收敛在 `src/launcher.ts` —— 于是页面池的逻辑在�
 又占句柄。子模板也进缓存：不传 filename 而关掉 art-template 的缓存，会让 `include` / `extend`
 的每一层在每次渲染时都重新读盘与解析。见 `src/template.ts`。
 
+普通截图的中间 HTML 通过 `ctx.temp.file()` 创建，截图结束即删除；旧内核仍走原临时目录。`keepHtml` 调试模式继续保留 `temp/render/<来源插件>/` 下的固定文件。
+
 **注入 `<base href>` 指向模板所在目录。** 模板里写 `href="./style.css"` 最自然，而中间 HTML 在
 临时目录，缺 base 必然 404。靠相对层级计算规避的话，模板目录一挪就白屏。
 

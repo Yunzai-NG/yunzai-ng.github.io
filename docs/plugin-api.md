@@ -164,6 +164,7 @@ export default definePlugin({
 |---|---|
 | `ctx.name` `ctx.version` `ctx.root` | 插件自身信息，`root` 是绝对路径 |
 | `ctx.dataDir` | 本插件专属数据目录，已创建 |
+| `ctx.temp` | [独占临时文件与按键复用的文件缓存](plugin/storage.md#临时文件) |
 | `ctx.logger` | 自动带插件名的 child logger |
 | `ctx.kv` | 已绑定 `plugin:<name>:` 前缀的 KV |
 | `ctx.config` | 配置句柄，没声明 schema 时 `get()` 返回空对象 |
